@@ -95,7 +95,7 @@ setEPS()
 postscript(here("figures", "Fig2.eps"), height = 8, width = 8)
 
 par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
-plot(0, type ='n', xlim=c(20,70),ylim=c(-0.01,1.05),xlab="Length (cm)",ylab="Proportion mature", cex.lab = 1.6, cex.axis = 1.3)
+plot(0, type ='n', xlim=c(20,70),ylim=c(-0.01,1.1),xlab="Length (cm)",ylab="Proportion mature", cex.lab = 1.6, cex.axis = 1.3)
 
 #Points and Line
 # CNRY.mat.1<-read.csv(here("data", "CNRY_O_1980_1984_11_3.csv"))
@@ -153,7 +153,8 @@ legend.a <- c(5, 10,
 legend.cex <- 0.7*sqrt(legend.a)
 
 legend(20 ,1.1,legend=legend.a,pch=19,col="gray20",
-       cex = 1.5, pt.cex=legend.cex,ncol=1,title ="N",bty='n', y.intersp = 1.3)
+       cex = 1.5, pt.cex=legend.cex,ncol=1,bty='n', y.intersp = 1.3)
+text(22, 1.095, "N",cex = 1.7)
 
 
 legend(54,0.1, legend=c("1980-1984","2010-2018"), col=c("#b2182b", "#2166ac"), lwd=c(3,3),
@@ -253,7 +254,7 @@ postscript(here("figures", "Fig3.eps"), height = 8, width = 8)
 
 par(mfrow=c(1,1))
 par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
-plot(0, type ='n', xlim=c(30,85),ylim=c(-0.01,1.05),xlab="Length (cm)",ylab="Proportion mature", cex.lab = 1.6, cex.axis = 1.3)
+plot(0, type ='n', xlim=c(30,85),ylim=c(-0.01,1.1),xlab="Length (cm)",ylab="Proportion mature", cex.lab = 1.6, cex.axis = 1.3)
 
 # Time Period 1 #
 bin_m.1 <- Data.in.1$size
@@ -299,7 +300,8 @@ legend.a <- c(10, 20, 30)
 legend.cex <- 0.7*sqrt(legend.a)
 
 legend(30 ,1.1,legend=legend.a,pch=19,col="gray20",
-       cex = 1.5, pt.cex=legend.cex,ncol=1,title ="N",bty='n', y.intersp = 1.3)
+       cex = 1.5, pt.cex=legend.cex,ncol=1,bty='n', y.intersp = 1.3)
+text(32, 1.095, "N",cex = 1.7)
 
 # legend(30,1.01,legend="20",pch=19,col="gray20",cex = 1, pt.cex=0.7*sqrt(20),ncol=1,bty='n')
 # legend(30,0.95,legend="30",pch=19,col="gray20",cex = 1, pt.cex=0.7*sqrt(30),ncol=1,bty='n')
