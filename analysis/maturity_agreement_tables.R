@@ -129,7 +129,7 @@ sabl_histo_v_macro_table %>%
                                                                  ifelse(macro_code == "6", 100-sum(sabl_histo_v_macro_table[6,13])/sum(sabl_histo_v_macro_table[6,2:14])*100,
                                                                         ifelse(macro_code == "7", 100-sum(sabl_histo_v_macro_table[7,14])/sum(sabl_histo_v_macro_table[7,2:14])*100, NA)))))))) -> sabl_histo_v_macro_table
 
-write.csv(sabl_histo_v_macro_table, here("tables", "sablefish_table_v2.csv"), row.names = FALSE)
+write.csv(sabl_histo_v_macro_table, here("tables", "sablefish_table.csv"), row.names = FALSE)
 
 
 #####----Canary rockfish----####
@@ -269,7 +269,7 @@ cnry_histo_v_macro_table %>%
                                                                          ifelse(macro_code == "6", 100-sum(cnry_histo_v_macro_table[6,13])/sum(cnry_histo_v_macro_table[6,2:14])*100,
                                                                                 ifelse(macro_code == "7", 100-sum(cnry_histo_v_macro_table[7,14])/sum(cnry_histo_v_macro_table[7,2:14])*100, NA)))))))) -> cnry_histo_v_macro_table
 
-write.csv(cnry_histo_v_macro_table, here("tables", "canary_table_v2.csv"), row.names = FALSE)
+write.csv(cnry_histo_v_macro_table, here("tables", "canary_table.csv"), row.names = FALSE)
 
 
 #####----Arrowtooth Flounder----####
@@ -422,6 +422,6 @@ arth_histo_v_macro_table %>%
 
 # Remove code 2 since it isn't used anymore
 
-write.csv(arth_histo_v_macro_table, here("tables", "arrowtooth_table_v2.csv"), row.names = FALSE)
+write.csv(arth_histo_v_macro_table, here("tables", "arrowtooth_table.csv"), row.names = FALSE)
 
 
