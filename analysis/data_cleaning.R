@@ -5,6 +5,7 @@
 ## Load libraries
 library(tidyverse)
 library(readxl)
+library(here)
 
 ##### CANARY ROCKFISH #####
 # Load original file
@@ -31,6 +32,42 @@ names(CNRY.cert) <- sub("X", "", names(CNRY.cert))
 
 # Export data
 write.csv(CNRY.cert, here("data", "canary_maturity_final.csv"), row.names = FALSE)
+
+
+##### CANARY ROCKFISH round 2#####
+# Here we're combining Melissa's original re-read files
+CNRY_reread_15_16 <- read_excel("/Users/markusmin/Documents/MBARI-2167/local/Markus Min - NOAA/Data for analysis/CNRY/Updated data sets/2015_2016 ODFW Canary rockfish maturity analysis_UPDATE081318.xlsx", skip = 5)
+CNRY_reread_16_17 <- read_excel("/Users/markusmin/Documents/MBARI-2167/local/Markus Min - NOAA/Data for analysis/CNRY/Updated data sets/2016_2017 ODFW Canary maturity analysis_UPDATE081318xlsx.xlsx", skip = 2)
+
+CNRY_reread_15_16 <- clean_names(CNRY_reread_15_16)
+CNRY_reread_16_17 <- clean_names(CNRY_reread_16_17)
+
+setdiff(colnames(CNRY_reread_15_16), colnames(CNRY_reread_16_17))
+setdiff(colnames(CNRY_reread_16_17), colnames(CNRY_reread_15_16))
+
+# Rename a bunch of columns/fix maturity code field as text for joining
+CNRY_reread_16_17 %>% 
+  mutate(maturity_code = as.numeric(maturity_code)) %>% 
+  dplyr::rename(port_biologist_initials = biologist_initials, spent = post_spawn, reorganizing_regenerating = regeneratin_reorganizing) -> CNRY_reread_16_17
+
+CNRY_reread_15_16 %>% 
+  dplyr::rename(certainty = certainty_of_reader_1_0, weight_kg = converted_lbs_to_kg, biological_maturity = mature_old_method) -> CNRY_reread_15_16
+
+setdiff(colnames(CNRY_reread_15_16), colnames(CNRY_reread_16_17))
+setdiff(colnames(CNRY_reread_16_17), colnames(CNRY_reread_15_16))
+
+CNRY_reread_15_16 %>% 
+  bind_rows(., CNRY_reread_16_17) -> CNRY_reread_15_17
+
+# Remove the highlighted rows
+CNRY_reread_15_17 %>% 
+  subset(., !(ovary_id_number %in% c(9052, 9112))) -> CNRY_reread_15_17
+
+# Change column names to remove X from numeric names
+names(CNRY_reread_15_17) <- sub("x", "", names(CNRY_reread_15_17))
+
+write.csv(CNRY_reread_15_17, here("data", "2015_2017_ODFW_canary_maturity_reread.csv"))
+
 
 ##### SABLEFISH #####
 # Load original file
