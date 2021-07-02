@@ -8,9 +8,16 @@ library(janitor)
 #####----Sablefish----####
 
 # load data
-SABL.mat<-read.csv(here("data", "sablefish_maturity_final.csv"))
-SABL.cert<-subset(SABL.mat,Certainty==1) #subset only certain samples and those that were staged macroscopically#
+SABL.mat<-read_excel(here("data", "2015_2016 ODFW Sablefish maturity_updated.xlsx"))
+SABL.mat <- clean_names(SABL.mat)
+SABL.cert<-subset(SABL.mat,certainty==1) #subset only certain samples and those that were staged macroscopically#
 SABL.cert <- clean_names(SABL.cert)
+
+# Move spent to stage 11 and resting/recovering/regenerating to stage 12
+SABL.cert %>% 
+  dplyr::rename("x11" = "spent_post_spawn", "x12" = "regenerating_recovering") %>% 
+  # rename maturity_code as macro_maturity_code
+  dplyr::rename(macro_maturity_code = maturity_code) -> SABL.cert
 
 # Create new field to store most advanced histological stage
 SABL.cert %>% 
@@ -34,13 +41,16 @@ SABL.cert %>%
 
 # Check which histology stages are present
 unique(SABL_macro_histo$histo_stage)
-# "2"   "7"   "3"   "12"  "8"   "11"  "4_2"
+# "2"   "7"   "3"   "12"  "8"   "11"  "4_2" "4_1"
 
 as.data.frame(table(subset(SABL_macro_histo, histo_stage == "2")$macro_maturity_code)) %>% 
   dplyr::rename(macro_code = Var1, histo_2 = Freq) -> sabl_histo_2
 
 as.data.frame(table(subset(SABL_macro_histo, histo_stage == "3")$macro_maturity_code)) %>% 
   dplyr::rename(macro_code = Var1, histo_3 = Freq) -> sabl_histo_3
+
+as.data.frame(table(subset(SABL_macro_histo, histo_stage == "4_1")$macro_maturity_code)) %>% 
+  dplyr::rename(macro_code = Var1, histo_4_1 = Freq) -> sabl_histo_4_1
 
 as.data.frame(table(subset(SABL_macro_histo, histo_stage == "4_2")$macro_maturity_code)) %>% 
   dplyr::rename(macro_code = Var1, histo_4_2 = Freq) -> sabl_histo_4_2
@@ -64,7 +74,6 @@ sabl_histo_v_macro_table <- data.frame(macro_code = c("1", "2", "3", "4", "5", "
 
 # Create dummy data frames for all codes that weren't observed
 sabl_histo_1 <- data.frame(macro_code = c("1", "2", "3", "4_1", "4_2", "5", "6", "7", "8", "9", "10", "11", "12"), histo_1 = rep(NA, 13))
-sabl_histo_4_1 <- data.frame(macro_code = c("1", "2", "3", "4_1", "4_2", "5", "6", "7", "8", "9", "10", "11", "12"), histo_4_1 = rep(NA, 13))
 sabl_histo_5 <- data.frame(macro_code = c("1", "2", "3", "4_1", "4_2", "5", "6", "7", "8", "9", "10", "11", "12"), histo_5 = rep(NA, 13))
 sabl_histo_6 <- data.frame(macro_code = c("1", "2", "3", "4_1", "4_2", "5", "6", "7", "8", "9", "10", "11", "12"), histo_6 = rep(NA, 13))
 sabl_histo_9 <- data.frame(macro_code = c("1", "2", "3", "4_1", "4_2", "5", "6", "7", "8", "9", "10", "11", "12"), histo_9 = rep(NA, 13))
@@ -120,15 +129,22 @@ sabl_histo_v_macro_table %>%
                                                                  ifelse(macro_code == "6", 100-sum(sabl_histo_v_macro_table[6,13])/sum(sabl_histo_v_macro_table[6,2:14])*100,
                                                                         ifelse(macro_code == "7", 100-sum(sabl_histo_v_macro_table[7,14])/sum(sabl_histo_v_macro_table[7,2:14])*100, NA)))))))) -> sabl_histo_v_macro_table
 
-write.csv(sabl_histo_v_macro_table, here("tables", "sablefish_table.csv"), row.names = FALSE)
+write.csv(sabl_histo_v_macro_table, here("tables", "sablefish_table_v2.csv"), row.names = FALSE)
 
 
 #####----Canary rockfish----####
 
 # load data
-CNRY.mat<-read.csv(here("data", "canary_maturity_final.csv"))
-CNRY.cert<-subset(CNRY.mat,Certainty==1) #subset only certain samples and those that were staged macroscopically#
+CNRY.mat <-read.csv(here("data", "2015_2017_ODFW_canary_maturity_reread.csv"))
+CNRY.mat <- clean_names(CNRY.mat)
+CNRY.cert<-subset(CNRY.mat,certainty==1) #subset only certain samples and those that were staged macroscopically#
 CNRY.cert <- clean_names(CNRY.cert)
+
+# Move spent to stage 11 and resting/recovering/regenerating to stage 12
+CNRY.cert %>% 
+  dplyr::rename("x11" = "spent", "x12" = "reorganizing_regenerating") %>% 
+  # rename maturity_code as macro_maturity_code
+  dplyr::rename(macro_maturity_code = maturity_code) -> CNRY.cert
 
 # Create new field to store most advanced histological stage
 CNRY.cert %>% 
@@ -253,15 +269,21 @@ cnry_histo_v_macro_table %>%
                                                                          ifelse(macro_code == "6", 100-sum(cnry_histo_v_macro_table[6,13])/sum(cnry_histo_v_macro_table[6,2:14])*100,
                                                                                 ifelse(macro_code == "7", 100-sum(cnry_histo_v_macro_table[7,14])/sum(cnry_histo_v_macro_table[7,2:14])*100, NA)))))))) -> cnry_histo_v_macro_table
 
-write.csv(cnry_histo_v_macro_table, here("tables", "canary_table.csv"), row.names = FALSE)
+write.csv(cnry_histo_v_macro_table, here("tables", "canary_table_v2.csv"), row.names = FALSE)
 
 
 #####----Arrowtooth Flounder----####
 
 # load data
-ARTH.mat<-read.csv(here("data", "arrowtooth_maturity_final.csv"))
+ARTH.mat<-read_excel(here("data", "2016_2017 ODFW Arrowtooth maturity reread.xlsx"))
 ARTH.cert<-subset(ARTH.mat,Certainty==1) #subset only certain samples and those that were staged macroscopically#
 ARTH.cert <- clean_names(ARTH.cert)
+
+# Rename to stages 11 and 12
+ARTH.cert %>% 
+  dplyr::rename("x11" = "post_spawn", "x12" = "regenerating_recovering") %>% 
+  # Rename to macro maturity code
+  dplyr::rename(macro_maturity_code = maturity_code) -> ARTH.cert
 
 # Create new field to store most advanced histological stage
 ARTH.cert %>% 
@@ -400,6 +422,6 @@ arth_histo_v_macro_table %>%
 
 # Remove code 2 since it isn't used anymore
 
-write.csv(arth_histo_v_macro_table, here("tables", "arrowtooth_table.csv"), row.names = FALSE)
+write.csv(arth_histo_v_macro_table, here("tables", "arrowtooth_table_v2.csv"), row.names = FALSE)
 
 
