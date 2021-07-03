@@ -1,4 +1,7 @@
-### Fitting logistic curves to maturity ###
+### Fitting logistic curves to maturity - sensitivity testing ###
+
+# Here we are looking at the sensitivity of the logistic curves to including vs. excluding stage 7. 
+# This may give us more justification for excluding them from the historical analysis
 
 # This code calculates L50 for all three species and produces Figure 1
 # This is v2 because I'm now making sure to use the re-read files
@@ -30,16 +33,16 @@ SABL.cert %>%
 # If it has any mature histological stage (4.1 or higher), it's mature
 SABL.cert %>% 
   mutate(biological_maturity = ifelse(x12 == "Y" | x11 == "Y" | x10 == "Y" | x9 == "Y" | x8 == "Y" | x7 == "Y" |
-                                      x6 == "Y" | x5 == "Y" | x4_2 == "Y" | x4_1 == "Y", 1, 0)) -> SABL.cert
+                                        x6 == "Y" | x5 == "Y" | x4_2 == "Y" | x4_1 == "Y", 1, 0)) -> SABL.cert
 
 # Functional maturity has already been calculated by Melissa in the doc when she was reading the slides.
 
 
-### BIOLOGICAL MATURITY ###
+#####BIOLOGICAL MATURITY#####
 
 ###glm fit###
 fit.mat.glm.bio.SABL <- glm (maturity ~ length, data = data.frame(length = SABL.cert$length_cm, maturity = SABL.cert$biological_maturity),
-                        family = binomial(link ="logit"))
+                             family = binomial(link ="logit"))
 vector.bio.SABL = c(fit.mat.glm.bio.SABL$coefficients)
 
 # A_glm = intercept
@@ -68,7 +71,7 @@ bio.SABL_mat = c(Lmat50.bio.SABL,con.bio.SABL)
 
 
 
-### FUNCTIONAL MATURITY ###
+#####FUNCTIONAL MATURITY#####
 
 # count number of skipped spawners
 # simply doing functional minus biological isn't right, because an individual not all functionally immature but biologically mature 
@@ -79,7 +82,7 @@ SABL_skip <- dim(subset(SABL.cert, percent_atresia >=25))[1]
 ###glm fit###
 
 fit.mat.glm.fun.SABL <- glm (maturity ~ 1 + length, data <-data.frame(length = SABL.cert$length_cm, maturity <- SABL.cert$functional_maturity),
-                        family = binomial(link ="logit"))
+                             family = binomial(link ="logit"))
 vector.fun.SABL = c(fit.mat.glm.fun.SABL$coefficients)
 
 # A_glm = intercept
@@ -108,12 +111,12 @@ fun.SABL_mat = c(Lmat50.fun.SABL,con.fun.SABL)
 
 
 
-### MACRO MATURITY ###
+#####MACRO MATURITY - ALL CODES#####
 
 ###glm fit###
 
 fit.mat.glm.macro.SABL <- glm (maturity ~ 1 + length, data <-data.frame(length = SABL.cert$length_cm, maturity <- SABL.cert$macro_maturity),
-                          family = binomial(link ="logit"))
+                               family = binomial(link ="logit"))
 vector.macro.SABL = c(fit.mat.glm.macro.SABL$coefficients)
 
 # A_glm = intercept
@@ -135,14 +138,14 @@ n <- sum(SABL.cert$certainty)
 deltamethod.macro.SABL <- ((sA.macro.SABL^2)/(B_glm.macro.SABL^2))- ((2*A_glm.macro.SABL*sA.macro.SABL*sB.macro.SABL*r.macro.SABL)/(B_glm.macro.SABL^3))+ (((A_glm.macro.SABL^2)*(sB.macro.SABL^2))/(B_glm.macro.SABL^4))
 deltamethod.macro.SABL
 
-##### 95% Confidence Interval equation#######
+### 95% Confidence Interval equation 
 
 con.macro.SABL <- 1.96*(sqrt(deltamethod.macro.SABL)/sqrt(n))
 macro.SABL_mat = c(Lmat50.macro.SABL,con.macro.SABL)
 
 ### RESULTS ###
 
-GLM.maturity.data = rbind(bio.SABL_mat,fun.SABL_mat,macro.SABL_mat)
+GLM.maturity.data = rbind(bio.SABL_mat,fun.SABL_mat,macro.SABL_mat, macro_no7.SABL_mat)
 colnames(GLM.maturity.data) = c("Lmat50", "plusminusCI95")
 GLM.maturity.data = as.data.frame(GLM.maturity.data)
 sablefish_maturity_results <- GLM.maturity.data
@@ -152,9 +155,11 @@ sablefish_maturity_results %>%
   mutate(., CI_95 = paste0(round(Lmat50-plusminusCI95,2), "-", round(Lmat50+plusminusCI95,2))) -> sablefish_maturity_results
 
 sablefish_maturity_results$alpha <- c(paste0(round(A_glm.bio.SABL,2), " (", round(sA.bio.SABL,2), ")"), paste0(round(A_glm.fun.SABL,2), 
-                                            " (", round(sA.fun.SABL,2), ")"), paste0(round(A_glm.macro.SABL,2), " (", round(sA.macro.SABL, 2), ")"))
+                                    " (", round(sA.fun.SABL,2), ")"), paste0(round(A_glm.macro.SABL,2), " (", round(sA.macro.SABL, 2), ")"),
+                                    paste0(round(A_glm.macro_no7.SABL,2), " (", round(sA.macro_no7.SABL, 2), ")"))
 sablefish_maturity_results$beta <- c(paste0(round(B_glm.bio.SABL,2), " (", round(sB.bio.SABL,2), ")"), paste0(round(B_glm.fun.SABL,2), 
-                                            " (", round(sB.fun.SABL,2), ")"), paste0(round(B_glm.macro.SABL,2), " (", round(sB.macro.SABL, 2), ")"))
+                                   " (", round(sB.fun.SABL,2), ")"), paste0(round(B_glm.macro.SABL,2), " (", round(sB.macro.SABL, 2), ")"),
+                                   paste0(round(B_glm.macro_no7.SABL,2), " (", round(sB.macro_no7.SABL, 2), ")"))
 
 
 # round values
@@ -174,6 +179,42 @@ fun_params_sablefish <- c(as.numeric(predict.glm(fit.mat.glm.fun.SABL,type=c("re
 mac_params_sablefish <- c(as.numeric(predict.glm(fit.mat.glm.macro.SABL,type=c("response"),newdata=data.frame(length=c(seq(12,80,2)))),row.names=FALSE))
 
 
+
+
+
+#####MACRO MATURITY - NO 7#####
+
+SABL.cert.no_7 <- subset(SABL.cert, macro_maturity_code != 7)
+
+###glm fit###
+
+fit.mat.glm.macro_no7.SABL <- glm (maturity ~ 1 + length, data <-data.frame(length = SABL.cert.no_7$length_cm, maturity <- SABL.cert.no_7$macro_maturity),
+                                   family = binomial(link ="logit"))
+vector.macro_no7.SABL = c(fit.mat.glm.macro_no7.SABL$coefficients)
+
+# A_glm = intercept
+# B_glm = slope
+
+A_glm.macro_no7.SABL <- vector.macro_no7.SABL[1] 
+B_glm.macro_no7.SABL <- vector.macro_no7.SABL[2]
+Lmat50.macro_no7.SABL = -(A_glm.macro_no7.SABL/B_glm.macro_no7.SABL)
+Lmat50.macro_no7.SABL
+
+cor(SABL.cert.no_7$length_cm, SABL.cert.no_7$macro_maturity)
+
+sA.macro_no7.SABL <- summary (fit.mat.glm.macro_no7.SABL)$coef[1,2] 
+sB.macro_no7.SABL <- summary (fit.mat.glm.macro_no7.SABL)$coef[2,2]    
+r.macro_no7.SABL <-cor(SABL.cert.no_7$length_cm, SABL.cert.no_7$macro_maturity)
+n <- sum(SABL.cert.no_7$certainty)
+
+#Variance estimator
+deltamethod.macro_no7.SABL <- ((sA.macro_no7.SABL^2)/(B_glm.macro_no7.SABL^2))- ((2*A_glm.macro_no7.SABL*sA.macro_no7.SABL*sB.macro_no7.SABL*r.macro_no7.SABL)/(B_glm.macro_no7.SABL^3))+ (((A_glm.macro_no7.SABL^2)*(sB.macro_no7.SABL^2))/(B_glm.macro_no7.SABL^4))
+deltamethod.macro_no7.SABL
+
+### 95% Confidence Interval equation 
+
+con.macro_no7.SABL <- 1.96*(sqrt(deltamethod.macro_no7.SABL)/sqrt(n))
+macro_no7.SABL_mat = c(Lmat50.macro_no7.SABL,con.macro_no7.SABL)
 
 
 ##### Get parameters for logistic maturity curves #####
@@ -279,7 +320,7 @@ CNRY.cert %>%
 
 # Functional maturity has already been calculated by Melissa in the doc when she was reading the slides.
 
-### BIOLOGICAL MATURITY ###
+#####BIOLOGICAL MATURITY#####
 
 ###glm fit###
 fit.mat.glm.bio.CNRY <- glm (maturity ~ length, data = data.frame(length = CNRY.cert$length_cm, maturity = CNRY.cert$biological_maturity),
@@ -312,7 +353,7 @@ bio.CNRY_mat = c(Lmat50.bio.CNRY,con.bio.CNRY)
 
 
 
-### FUNCTIONAL MATURITY ###
+#####FUNCTIONAL MATURITY#####
 
 # count number of skipped spawners
 # simply doing functional minus biological isn't right, because an individual not all functionally immature but biologically mature 
@@ -352,7 +393,7 @@ fun.CNRY_mat = c(Lmat50.fun.CNRY,con.fun.CNRY)
 
 
 
-### MACRO MATURITY ###
+#####MACRO MATURITY - ALL CODES#####
 
 ###glm fit###
 
@@ -379,14 +420,14 @@ n <- sum(CNRY.cert$certainty)
 deltamethod.macro.CNRY <- ((sA.macro.CNRY^2)/(B_glm.macro.CNRY^2))- ((2*A_glm.macro.CNRY*sA.macro.CNRY*sB.macro.CNRY*r.macro.CNRY)/(B_glm.macro.CNRY^3))+ (((A_glm.macro.CNRY^2)*(sB.macro.CNRY^2))/(B_glm.macro.CNRY^4))
 deltamethod.macro.CNRY
 
-##### 95% Confidence Interval equation#######
+### 95% Confidence Interval equation 
 
 con.macro.CNRY <- 1.96*(sqrt(deltamethod.macro.CNRY)/sqrt(n))
 macro.CNRY_mat = c(Lmat50.macro.CNRY,con.macro.CNRY)
 
 ### RESULTS ###
 
-GLM.maturity.data = rbind(bio.CNRY_mat,fun.CNRY_mat,macro.CNRY_mat)
+GLM.maturity.data = rbind(bio.CNRY_mat,fun.CNRY_mat,macro.CNRY_mat, macro_no7.CNRY_mat)
 colnames(GLM.maturity.data) = c("Lmat50", "plusminusCI95")
 GLM.maturity.data = as.data.frame(GLM.maturity.data)
 canary_maturity_results <- GLM.maturity.data
@@ -396,9 +437,12 @@ canary_maturity_results %>%
   mutate(., CI_95 = paste0(round(Lmat50-plusminusCI95,2), "-", round(Lmat50+plusminusCI95,2))) -> canary_maturity_results
 
 canary_maturity_results$alpha <- c(paste0(round(A_glm.bio.CNRY,2), " (", round(sA.bio.CNRY,2), ")"), paste0(round(A_glm.fun.CNRY,2), 
-                                                                                                               " (", round(sA.fun.CNRY,2), ")"), paste0(round(A_glm.macro.CNRY,2), " (", round(sA.macro.CNRY, 2), ")"))
+                                 " (", round(sA.fun.CNRY,2), ")"), paste0(round(A_glm.macro.CNRY,2), " (", round(sA.macro.CNRY, 2), ")"),
+                                 # no 7
+                                 paste0(round(A_glm.macro_no7.CNRY,2), " (", round(sA.macro_no7.CNRY, 2), ")"))
 canary_maturity_results$beta <- c(paste0(round(B_glm.bio.CNRY,2), " (", round(sB.bio.CNRY,2), ")"), paste0(round(B_glm.fun.CNRY,2), 
-                                                                                                              " (", round(sB.fun.CNRY,2), ")"), paste0(round(B_glm.macro.CNRY,2), " (", round(sB.macro.CNRY, 2), ")"))
+                                " (", round(sB.fun.CNRY,2), ")"), paste0(round(B_glm.macro.CNRY,2), " (", round(sB.macro.CNRY, 2), ")"),
+                                paste0(round(B_glm.macro_no7.CNRY,2), " (", round(sB.macro_no7.CNRY, 2), ")"))
 # round values
 canary_maturity_results$Lmat50 <- round(canary_maturity_results$Lmat50, 2)
 
@@ -416,6 +460,42 @@ fun_params_canary <- c(as.numeric(predict.glm(fit.mat.glm.fun.CNRY,type=c("respo
 
 # Macroscopic maturity
 mac_params_canary <- c(as.numeric(predict.glm(fit.mat.glm.macro.CNRY,type=c("response"),newdata=data.frame(length=c(seq(12,80,2)))),row.names=FALSE))
+
+
+
+#####MACRO MATURITY - NO 7#####
+
+CNRY.cert.no_7 <- subset(CNRY.cert, macro_maturity_code != 7)
+
+###glm fit###
+
+fit.mat.glm.macro_no7.CNRY <- glm (maturity ~ 1 + length, data <-data.frame(length = CNRY.cert.no_7$length_cm, maturity <- CNRY.cert.no_7$macro_maturity),
+                                   family = binomial(link ="logit"))
+vector.macro_no7.CNRY = c(fit.mat.glm.macro_no7.CNRY$coefficients)
+
+# A_glm = intercept
+# B_glm = slope
+
+A_glm.macro_no7.CNRY <- vector.macro_no7.CNRY[1] 
+B_glm.macro_no7.CNRY <- vector.macro_no7.CNRY[2]
+Lmat50.macro_no7.CNRY = -(A_glm.macro_no7.CNRY/B_glm.macro_no7.CNRY)
+Lmat50.macro_no7.CNRY
+
+cor(CNRY.cert.no_7$length_cm, CNRY.cert.no_7$macro_maturity)
+
+sA.macro_no7.CNRY <- summary (fit.mat.glm.macro_no7.CNRY)$coef[1,2] 
+sB.macro_no7.CNRY <- summary (fit.mat.glm.macro_no7.CNRY)$coef[2,2]    
+r.macro_no7.CNRY <-cor(CNRY.cert.no_7$length_cm, CNRY.cert.no_7$macro_maturity)
+n <- sum(CNRY.cert.no_7$certainty)
+
+#Variance estimator
+deltamethod.macro_no7.CNRY <- ((sA.macro_no7.CNRY^2)/(B_glm.macro_no7.CNRY^2))- ((2*A_glm.macro_no7.CNRY*sA.macro_no7.CNRY*sB.macro_no7.CNRY*r.macro_no7.CNRY)/(B_glm.macro_no7.CNRY^3))+ (((A_glm.macro_no7.CNRY^2)*(sB.macro_no7.CNRY^2))/(B_glm.macro_no7.CNRY^4))
+deltamethod.macro_no7.CNRY
+
+### 95% Confidence Interval equation 
+
+con.macro_no7.CNRY <- 1.96*(sqrt(deltamethod.macro_no7.CNRY)/sqrt(n))
+macro_no7.CNRY_mat = c(Lmat50.macro_no7.CNRY,con.macro_no7.CNRY)
 
 
 ##### Get parameters for logistic maturity curves #####
@@ -523,7 +603,7 @@ ARTH.cert %>%
 
 
 
-### BIOLOGICAL MATURITY ###
+#####BIOLOGICAL MATURITY#####
 
 ###glm fit###
 fit.mat.glm.bio.ARTH <- glm (maturity ~ length, data = data.frame(length = ARTH.cert$length_cm, maturity = ARTH.cert$biological_maturity),
@@ -556,7 +636,7 @@ bio.ARTH_mat = c(Lmat50.bio.ARTH,con.bio.ARTH)
 
 
 
-### FUNCTIONAL MATURITY ###
+#####FUNCTIONAL MATURITY#####
 
 # count number of skipped spawners
 # simply doing functional minus biological isn't right, because an individual not all functionally immature but biologically mature 
@@ -596,7 +676,7 @@ fun.ARTH_mat = c(Lmat50.fun.ARTH,con.fun.ARTH)
 
 
 
-### MACRO MATURITY ###
+#####MACRO MATURITY - ALL CODES#####
 
 ###glm fit###
 
@@ -623,14 +703,14 @@ n <- sum(ARTH.cert$certainty)
 deltamethod.macro.ARTH <- ((sA.macro.ARTH^2)/(B_glm.macro.ARTH^2))- ((2*A_glm.macro.ARTH*sA.macro.ARTH*sB.macro.ARTH*r.macro.ARTH)/(B_glm.macro.ARTH^3))+ (((A_glm.macro.ARTH^2)*(sB.macro.ARTH^2))/(B_glm.macro.ARTH^4))
 deltamethod.macro.ARTH
 
-##### 95% Confidence Interval equation#######
+### 95% Confidence Interval equation 
 
 con.macro.ARTH <- 1.96*(sqrt(deltamethod.macro.ARTH)/sqrt(n))
 macro.ARTH_mat = c(Lmat50.macro.ARTH,con.macro.ARTH)
 
 ### RESULTS ###
 
-GLM.maturity.data = rbind(bio.ARTH_mat,fun.ARTH_mat,macro.ARTH_mat)
+GLM.maturity.data = rbind(bio.ARTH_mat,fun.ARTH_mat,macro.ARTH_mat, macro_no7.ARTH_mat)
 colnames(GLM.maturity.data) = c("Lmat50", "plusminusCI95")
 GLM.maturity.data = as.data.frame(GLM.maturity.data)
 arrowtooth_maturity_results <- GLM.maturity.data
@@ -640,10 +720,12 @@ arrowtooth_maturity_results %>%
   mutate(., CI_95 = paste0(round(Lmat50-plusminusCI95,2), "-", round(Lmat50+plusminusCI95,2))) -> arrowtooth_maturity_results
 
 arrowtooth_maturity_results$alpha <- c(paste0(round(A_glm.bio.ARTH,2), " (", round(sA.bio.ARTH,2), ")"), paste0(round(A_glm.fun.ARTH,2), 
-                                                                                                            " (", round(sA.fun.ARTH,2), ")"), paste0(round(A_glm.macro.ARTH,2), " (", round(sA.macro.ARTH, 2), ")"))
+                                     " (", round(sA.fun.ARTH,2), ")"), paste0(round(A_glm.macro.ARTH,2), " (", round(sA.macro.ARTH, 2), ")"),
+                                     paste0(round(A_glm.macro_no7.ARTH,2), " (", round(sA.macro_no7.ARTH, 2), ")"))
 arrowtooth_maturity_results$beta <- c(paste0(round(B_glm.bio.ARTH,2), " (", round(sB.bio.ARTH,2), ")"), paste0(round(B_glm.fun.ARTH,2), 
-                                                                                                           " (", round(sB.fun.ARTH,2), ")"), paste0(round(B_glm.macro.ARTH,2), " (", round(sB.macro.ARTH, 2), ")"))
-  
+                                     " (", round(sB.fun.ARTH,2), ")"), paste0(round(B_glm.macro.ARTH,2), " (", round(sB.macro.ARTH, 2), ")"),
+                                     paste0(round(B_glm.macro_no7.ARTH,2), " (", round(sB.macro_no7.ARTH, 2), ")"))
+
 # round values
 arrowtooth_maturity_results$Lmat50 <- round(arrowtooth_maturity_results$Lmat50, 2)
 
@@ -662,6 +744,42 @@ fun_params_arrowtooth <- c(as.numeric(predict.glm(fit.mat.glm.fun.ARTH,type=c("r
 # Macroscopic maturity
 mac_params_arrowtooth <- c(as.numeric(predict.glm(fit.mat.glm.macro.ARTH,type=c("response"),newdata=data.frame(length=c(seq(12,80,2)))),row.names=FALSE))
 
+
+
+
+#####MACRO MATURITY - NO 7#####
+
+ARTH.cert.no_7 <- subset(ARTH.cert, macro_maturity_code != 7)
+
+###glm fit###
+
+fit.mat.glm.macro_no7.ARTH <- glm (maturity ~ 1 + length, data <-data.frame(length = ARTH.cert.no_7$length_cm, maturity <- ARTH.cert.no_7$macro_maturity),
+                                   family = binomial(link ="logit"))
+vector.macro_no7.ARTH = c(fit.mat.glm.macro_no7.ARTH$coefficients)
+
+# A_glm = intercept
+# B_glm = slope
+
+A_glm.macro_no7.ARTH <- vector.macro_no7.ARTH[1] 
+B_glm.macro_no7.ARTH <- vector.macro_no7.ARTH[2]
+Lmat50.macro_no7.ARTH = -(A_glm.macro_no7.ARTH/B_glm.macro_no7.ARTH)
+Lmat50.macro_no7.ARTH
+
+cor(ARTH.cert.no_7$length_cm, ARTH.cert.no_7$macro_maturity)
+
+sA.macro_no7.ARTH <- summary (fit.mat.glm.macro_no7.ARTH)$coef[1,2] 
+sB.macro_no7.ARTH <- summary (fit.mat.glm.macro_no7.ARTH)$coef[2,2]    
+r.macro_no7.ARTH <-cor(ARTH.cert.no_7$length_cm, ARTH.cert.no_7$macro_maturity)
+n <- sum(ARTH.cert.no_7$certainty)
+
+#Variance estimator
+deltamethod.macro_no7.ARTH <- ((sA.macro_no7.ARTH^2)/(B_glm.macro_no7.ARTH^2))- ((2*A_glm.macro_no7.ARTH*sA.macro_no7.ARTH*sB.macro_no7.ARTH*r.macro_no7.ARTH)/(B_glm.macro_no7.ARTH^3))+ (((A_glm.macro_no7.ARTH^2)*(sB.macro_no7.ARTH^2))/(B_glm.macro_no7.ARTH^4))
+deltamethod.macro_no7.ARTH
+
+### 95% Confidence Interval equation 
+
+con.macro_no7.ARTH <- 1.96*(sqrt(deltamethod.macro_no7.ARTH)/sqrt(n))
+macro_no7.ARTH_mat = c(Lmat50.macro_no7.ARTH,con.macro_no7.ARTH)
 
 
 ##### Get parameters for logistic maturity curves #####
@@ -917,49 +1035,7 @@ canary_maturity_results %>%
 
 write.csv(full_maturity_results, here("tables", "logistic_parameters_table.csv"), row.names = FALSE)
 
-##--Join results, plot (L50 + CI)----------------------------------------------------------
-## NO LONGER USED FOLLOWING REVISIONS ##
-combined_maturity_results <- union(union(sablefish_maturity_results, canary_maturity_results), arrowtooth_maturity_results)
-
-# Create a color scheme
-mat_type_cols <- c("bio_mat" = "#377eb8", "fun_mat" = "#4daf4a", "macro_mat" = "#984ea3")
-
-maturity_plot <- ggplot(combined_maturity_results, aes(x =  species, y = Lmat50, color = mat_type))+
-  geom_point(position = position_dodge(width = 0.4), size = 6)+
-  geom_errorbar(aes(ymin = (Lmat50 - CI_95), ymax = (Lmat50+CI_95)), position = position_dodge(width = 0.4), width = 0.3)+
-  xlab("Species")+
-  ylab(expression("L"[50]~" (cm)"))+
-  scale_color_manual(values = mat_type_cols)+
-  theme(panel.background = element_rect(color = "black", fill = "white", size = 1),
-        axis.text.x = element_text(size = 18),
-        axis.text.y = element_text(size = 16),
-        axis.title = element_text(size = 22),
-        legend.position = "none",
-        panel.grid.major = element_blank(),
-        panel.grid.minor = element_blank(),
-        axis.ticks.length = unit(0.2, "cm"))+
-  # Create a legend manually
-  annotate(geom = "rect", ymin = 58, ymax = 66, xmin = 0.5, xmax = 1.6, color = "black", fill = "white")+
-  # Title
-  annotate(geom = "text", x = 0.55, y = 65, hjust = 0, label = "Maturity Type", size = 7)+
-  # Biological Maturity
-  annotate(geom = "text", x = 0.7, y = 63, hjust = 0, label = "Biological", size = 6)+
-  annotate(geom = "point", x = 0.6, y = 63, color = "#377eb8", size = 4.5)+
-  # Functional Maturity
-  annotate(geom = "text", x = 0.7, y = 61, hjust = 0, label = "Functional", size = 6)+
-  annotate(geom = "point", x = 0.6, y = 61, color = "#4daf4a", size = 4.5)+
-  # Macroscopic Maturity
-  annotate(geom = "text", x = 0.7, y = 59, hjust = 0, label = "Macroscopic", size = 6)+
-  annotate(geom = "point", x = 0.6, y = 59, color = "#984ea3", size = 4.5)
-
-maturity_plot
-
-# ggsave(here("figures", "Fig1.eps"), maturity_plot, width = 8, height = 8, device = "eps")
-
-
-## count total number of skipped spawners
+# count number of skip spawners
 SABL_skip
-ARTH_skip
 CNRY_skip
-
-
+ARTH_skip
