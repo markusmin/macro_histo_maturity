@@ -143,28 +143,6 @@ deltamethod.macro.SABL
 con.macro.SABL <- 1.96*(sqrt(deltamethod.macro.SABL)/sqrt(n))
 macro.SABL_mat = c(Lmat50.macro.SABL,con.macro.SABL)
 
-### RESULTS ###
-
-GLM.maturity.data = rbind(bio.SABL_mat,fun.SABL_mat,macro.SABL_mat, macro_no7.SABL_mat)
-colnames(GLM.maturity.data) = c("Lmat50", "plusminusCI95")
-GLM.maturity.data = as.data.frame(GLM.maturity.data)
-sablefish_maturity_results <- GLM.maturity.data
-sablefish_maturity_results$species <- "Sablefish"
-sablefish_maturity_results <- rownames_to_column(sablefish_maturity_results, "mat_type")
-sablefish_maturity_results %>% 
-  mutate(., CI_95 = paste0(round(Lmat50-plusminusCI95,2), "-", round(Lmat50+plusminusCI95,2))) -> sablefish_maturity_results
-
-sablefish_maturity_results$alpha <- c(paste0(round(A_glm.bio.SABL,2), " (", round(sA.bio.SABL,2), ")"), paste0(round(A_glm.fun.SABL,2), 
-                                    " (", round(sA.fun.SABL,2), ")"), paste0(round(A_glm.macro.SABL,2), " (", round(sA.macro.SABL, 2), ")"),
-                                    paste0(round(A_glm.macro_no7.SABL,2), " (", round(sA.macro_no7.SABL, 2), ")"))
-sablefish_maturity_results$beta <- c(paste0(round(B_glm.bio.SABL,2), " (", round(sB.bio.SABL,2), ")"), paste0(round(B_glm.fun.SABL,2), 
-                                   " (", round(sB.fun.SABL,2), ")"), paste0(round(B_glm.macro.SABL,2), " (", round(sB.macro.SABL, 2), ")"),
-                                   paste0(round(B_glm.macro_no7.SABL,2), " (", round(sB.macro_no7.SABL, 2), ")"))
-
-
-# round values
-sablefish_maturity_results$Lmat50 <- round(sablefish_maturity_results$Lmat50, 2)
-
 ### Get maturity parameters for use in stock assessment model
 
 # Change seq() to match length bins in data file
@@ -293,6 +271,31 @@ n_fun.SABL <- as.data.frame(table(SABL.cert$length_cm))$Freq
 df.fit.mat.glm.fun.SABL = as.data.frame(fit.mat.glm.fun.SABL[1])
 A_glm.fun.SABL = df.fit.mat.glm.fun.SABL$coefficients[1]
 B_glm.fun.SABL = df.fit.mat.glm.fun.SABL$coefficients[2]
+
+
+
+#####SUMMARISE SABLEFISH RESULTS#####
+
+GLM.maturity.data = rbind(bio.SABL_mat,fun.SABL_mat,macro.SABL_mat, macro_no7.SABL_mat)
+colnames(GLM.maturity.data) = c("Lmat50", "plusminusCI95")
+GLM.maturity.data = as.data.frame(GLM.maturity.data)
+sablefish_maturity_results <- GLM.maturity.data
+sablefish_maturity_results$species <- "Sablefish"
+sablefish_maturity_results <- rownames_to_column(sablefish_maturity_results, "mat_type")
+sablefish_maturity_results %>% 
+  mutate(., CI_95 = paste0(round(Lmat50-plusminusCI95,2), "-", round(Lmat50+plusminusCI95,2))) -> sablefish_maturity_results
+
+sablefish_maturity_results$alpha <- c(paste0(round(A_glm.bio.SABL,2), " (", round(sA.bio.SABL,2), ")"), paste0(round(A_glm.fun.SABL,2), 
+                                                                                                               " (", round(sA.fun.SABL,2), ")"), paste0(round(A_glm.macro.SABL,2), " (", round(sA.macro.SABL, 2), ")"),
+                                      paste0(round(A_glm.macro_no7.SABL,2), " (", round(sA.macro_no7.SABL, 2), ")"))
+sablefish_maturity_results$beta <- c(paste0(round(B_glm.bio.SABL,2), " (", round(sB.bio.SABL,2), ")"), paste0(round(B_glm.fun.SABL,2), 
+                                                                                                              " (", round(sB.fun.SABL,2), ")"), paste0(round(B_glm.macro.SABL,2), " (", round(sB.macro.SABL, 2), ")"),
+                                     paste0(round(B_glm.macro_no7.SABL,2), " (", round(sB.macro_no7.SABL, 2), ")"))
+
+
+# round values
+sablefish_maturity_results$Lmat50 <- round(sablefish_maturity_results$Lmat50, 2)
+
 
 ##--Canary Rockfish-------------------------------------------------------------
 CNRY.mat <-read.csv(here("data", "2015_2017_ODFW_canary_maturity_reread.csv"))
@@ -425,29 +428,6 @@ deltamethod.macro.CNRY
 con.macro.CNRY <- 1.96*(sqrt(deltamethod.macro.CNRY)/sqrt(n))
 macro.CNRY_mat = c(Lmat50.macro.CNRY,con.macro.CNRY)
 
-### RESULTS ###
-
-GLM.maturity.data = rbind(bio.CNRY_mat,fun.CNRY_mat,macro.CNRY_mat, macro_no7.CNRY_mat)
-colnames(GLM.maturity.data) = c("Lmat50", "plusminusCI95")
-GLM.maturity.data = as.data.frame(GLM.maturity.data)
-canary_maturity_results <- GLM.maturity.data
-canary_maturity_results$species <- "Canary rockfish"
-canary_maturity_results <- rownames_to_column(canary_maturity_results, "mat_type")
-canary_maturity_results %>% 
-  mutate(., CI_95 = paste0(round(Lmat50-plusminusCI95,2), "-", round(Lmat50+plusminusCI95,2))) -> canary_maturity_results
-
-canary_maturity_results$alpha <- c(paste0(round(A_glm.bio.CNRY,2), " (", round(sA.bio.CNRY,2), ")"), paste0(round(A_glm.fun.CNRY,2), 
-                                 " (", round(sA.fun.CNRY,2), ")"), paste0(round(A_glm.macro.CNRY,2), " (", round(sA.macro.CNRY, 2), ")"),
-                                 # no 7
-                                 paste0(round(A_glm.macro_no7.CNRY,2), " (", round(sA.macro_no7.CNRY, 2), ")"))
-canary_maturity_results$beta <- c(paste0(round(B_glm.bio.CNRY,2), " (", round(sB.bio.CNRY,2), ")"), paste0(round(B_glm.fun.CNRY,2), 
-                                " (", round(sB.fun.CNRY,2), ")"), paste0(round(B_glm.macro.CNRY,2), " (", round(sB.macro.CNRY, 2), ")"),
-                                paste0(round(B_glm.macro_no7.CNRY,2), " (", round(sB.macro_no7.CNRY, 2), ")"))
-# round values
-canary_maturity_results$Lmat50 <- round(canary_maturity_results$Lmat50, 2)
-
-
-
 ### Get maturity parameters for use in stock assessment model
 
 # Change seq() to match length bins in data file
@@ -524,6 +504,32 @@ n_macro.CNRY <- as.data.frame(table(CNRY.cert$length_cm))$Freq
 df.fit.mat.glm.macro.CNRY = as.data.frame(fit.mat.glm.macro.CNRY[1])
 A_glm.macro.CNRY = df.fit.mat.glm.macro.CNRY$coefficients[1]
 B_glm.macro.CNRY = df.fit.mat.glm.macro.CNRY$coefficients[2]
+
+
+
+#####SUMMARIZE CANARY RESULTS#####
+
+GLM.maturity.data = rbind(bio.CNRY_mat,fun.CNRY_mat,macro.CNRY_mat, macro_no7.CNRY_mat)
+colnames(GLM.maturity.data) = c("Lmat50", "plusminusCI95")
+GLM.maturity.data = as.data.frame(GLM.maturity.data)
+canary_maturity_results <- GLM.maturity.data
+canary_maturity_results$species <- "Canary rockfish"
+canary_maturity_results <- rownames_to_column(canary_maturity_results, "mat_type")
+canary_maturity_results %>% 
+  mutate(., CI_95 = paste0(round(Lmat50-plusminusCI95,2), "-", round(Lmat50+plusminusCI95,2))) -> canary_maturity_results
+
+canary_maturity_results$alpha <- c(paste0(round(A_glm.bio.CNRY,2), " (", round(sA.bio.CNRY,2), ")"), paste0(round(A_glm.fun.CNRY,2), 
+                                                                                                            " (", round(sA.fun.CNRY,2), ")"), paste0(round(A_glm.macro.CNRY,2), " (", round(sA.macro.CNRY, 2), ")"),
+                                   # no 7
+                                   paste0(round(A_glm.macro_no7.CNRY,2), " (", round(sA.macro_no7.CNRY, 2), ")"))
+canary_maturity_results$beta <- c(paste0(round(B_glm.bio.CNRY,2), " (", round(sB.bio.CNRY,2), ")"), paste0(round(B_glm.fun.CNRY,2), 
+                                                                                                           " (", round(sB.fun.CNRY,2), ")"), paste0(round(B_glm.macro.CNRY,2), " (", round(sB.macro.CNRY, 2), ")"),
+                                  paste0(round(B_glm.macro_no7.CNRY,2), " (", round(sB.macro_no7.CNRY, 2), ")"))
+# round values
+canary_maturity_results$Lmat50 <- round(canary_maturity_results$Lmat50, 2)
+
+
+
 
 # BIOLOGICAL MATURITY #
 
@@ -708,28 +714,6 @@ deltamethod.macro.ARTH
 con.macro.ARTH <- 1.96*(sqrt(deltamethod.macro.ARTH)/sqrt(n))
 macro.ARTH_mat = c(Lmat50.macro.ARTH,con.macro.ARTH)
 
-### RESULTS ###
-
-GLM.maturity.data = rbind(bio.ARTH_mat,fun.ARTH_mat,macro.ARTH_mat, macro_no7.ARTH_mat)
-colnames(GLM.maturity.data) = c("Lmat50", "plusminusCI95")
-GLM.maturity.data = as.data.frame(GLM.maturity.data)
-arrowtooth_maturity_results <- GLM.maturity.data
-arrowtooth_maturity_results$species <- "Arrowtooth Flounder"
-arrowtooth_maturity_results <- rownames_to_column(arrowtooth_maturity_results, "mat_type")
-arrowtooth_maturity_results %>% 
-  mutate(., CI_95 = paste0(round(Lmat50-plusminusCI95,2), "-", round(Lmat50+plusminusCI95,2))) -> arrowtooth_maturity_results
-
-arrowtooth_maturity_results$alpha <- c(paste0(round(A_glm.bio.ARTH,2), " (", round(sA.bio.ARTH,2), ")"), paste0(round(A_glm.fun.ARTH,2), 
-                                     " (", round(sA.fun.ARTH,2), ")"), paste0(round(A_glm.macro.ARTH,2), " (", round(sA.macro.ARTH, 2), ")"),
-                                     paste0(round(A_glm.macro_no7.ARTH,2), " (", round(sA.macro_no7.ARTH, 2), ")"))
-arrowtooth_maturity_results$beta <- c(paste0(round(B_glm.bio.ARTH,2), " (", round(sB.bio.ARTH,2), ")"), paste0(round(B_glm.fun.ARTH,2), 
-                                     " (", round(sB.fun.ARTH,2), ")"), paste0(round(B_glm.macro.ARTH,2), " (", round(sB.macro.ARTH, 2), ")"),
-                                     paste0(round(B_glm.macro_no7.ARTH,2), " (", round(sB.macro_no7.ARTH, 2), ")"))
-
-# round values
-arrowtooth_maturity_results$Lmat50 <- round(arrowtooth_maturity_results$Lmat50, 2)
-
-
 
 ### Get maturity parameters for use in stock assessment model
 
@@ -858,6 +842,30 @@ n_fun.ARTH <- as.data.frame(table(ARTH.cert$length_cm))$Freq
 df.fit.mat.glm.fun.ARTH = as.data.frame(fit.mat.glm.fun.ARTH[1])
 A_glm.fun.ARTH = df.fit.mat.glm.fun.ARTH$coefficients[1]
 B_glm.fun.ARTH = df.fit.mat.glm.fun.ARTH$coefficients[2]
+
+
+
+
+#####SUMMARIZE ARROWTOOTH RESULTS#####
+
+GLM.maturity.data = rbind(bio.ARTH_mat,fun.ARTH_mat,macro.ARTH_mat, macro_no7.ARTH_mat)
+colnames(GLM.maturity.data) = c("Lmat50", "plusminusCI95")
+GLM.maturity.data = as.data.frame(GLM.maturity.data)
+arrowtooth_maturity_results <- GLM.maturity.data
+arrowtooth_maturity_results$species <- "Arrowtooth Flounder"
+arrowtooth_maturity_results <- rownames_to_column(arrowtooth_maturity_results, "mat_type")
+arrowtooth_maturity_results %>% 
+  mutate(., CI_95 = paste0(round(Lmat50-plusminusCI95,2), "-", round(Lmat50+plusminusCI95,2))) -> arrowtooth_maturity_results
+
+arrowtooth_maturity_results$alpha <- c(paste0(round(A_glm.bio.ARTH,2), " (", round(sA.bio.ARTH,2), ")"), paste0(round(A_glm.fun.ARTH,2), 
+                                                                                                                " (", round(sA.fun.ARTH,2), ")"), paste0(round(A_glm.macro.ARTH,2), " (", round(sA.macro.ARTH, 2), ")"),
+                                       paste0(round(A_glm.macro_no7.ARTH,2), " (", round(sA.macro_no7.ARTH, 2), ")"))
+arrowtooth_maturity_results$beta <- c(paste0(round(B_glm.bio.ARTH,2), " (", round(sB.bio.ARTH,2), ")"), paste0(round(B_glm.fun.ARTH,2), 
+                                                                                                               " (", round(sB.fun.ARTH,2), ")"), paste0(round(B_glm.macro.ARTH,2), " (", round(sB.macro.ARTH, 2), ")"),
+                                      paste0(round(B_glm.macro_no7.ARTH,2), " (", round(sB.macro_no7.ARTH, 2), ")"))
+
+# round values
+arrowtooth_maturity_results$Lmat50 <- round(arrowtooth_maturity_results$Lmat50, 2)
 
 
 ##--Create combined logistic maturity curve plot----------------------------------------------------------
