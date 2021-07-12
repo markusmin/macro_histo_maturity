@@ -1,7 +1,7 @@
 ### Fitting logistic curves to maturity - sensitivity testing ###
 
 # Here we are looking at the sensitivity of the logistic curves to including vs. excluding stage 7. 
-# This may give us more justification for excluding them from the historical analysis
+# This allows us to explicitly see the effect of excluding them from the historical analysis
 
 # This code calculates L50 for all three species and produces Figure 1
 # This is v2 because I'm now making sure to use the re-read files
@@ -1047,3 +1047,58 @@ write.csv(full_maturity_results, here("tables", "logistic_parameters_table.csv")
 SABL_skip
 CNRY_skip
 ARTH_skip
+
+
+#####--Export all parameters for stock assessment model in one table--#####
+
+# Create empty matrix to store vectors
+SA_params_list <- list()
+
+### Store canary
+
+# Canary Biological
+SA_params_list[[1]] <- "Canary rockfish: Biological Maturity length-maturity. Lengths: seq(12,80,2)"
+SA_params_list[[2]] <- bio_params_canary 
+
+# Canary Functional
+SA_params_list[[3]] <- "Canary rockfish: Functional Maturity length-maturity. Lengths: seq(12,80,2)"
+SA_params_list[[4]] <- fun_params_canary 
+
+# Canary Macroscopic
+SA_params_list[[5]] <- "Canary rockfish: Macroscopic Maturity length-maturity. Lengths: seq(12,80,2)"
+SA_params_list[[6]] <- mac_params_canary 
+
+### Store sablefish
+
+# Sablefish Biological
+SA_params_list[[7]] <- "Sablefish: Biological Maturity length-maturity. Lengths: seq(12,80,2)"
+SA_params_list[[8]] <- bio_params_sablefish 
+
+# Sablefish Functional
+SA_params_list[[9]] <- "Sablefish: Functional Maturity length-maturity. Lengths: seq(12,80,2)"
+SA_params_list[[10]] <- fun_params_sablefish 
+
+# Sablefish Macroscopic
+SA_params_list[[11]] <- "Sablefish: Macroscopic Maturity length-maturity. Lengths: seq(12,80,2)"
+SA_params_list[[12]] <- mac_params_sablefish 
+
+
+### Store arrowtooth
+
+# Arrowtooth Biological
+SA_params_list[[13]] <- "Arrowtooth flounder: Biological Maturity length-maturity. Lengths: seq(12,80,2)"
+SA_params_list[[14]] <- bio_params_arrowtooth 
+
+# Arrowtooth Functional
+SA_params_list[[15]] <- "Arrowtooth flounder: Functional Maturity length-maturity. Lengths: seq(12,80,2)"
+SA_params_list[[16]] <- fun_params_arrowtooth 
+
+# Arrowtooth Macroscopic
+SA_params_list[[17]] <- "Arrowtooth flounder: Macroscopic Maturity length-maturity. Lengths: seq(12,80,2)"
+SA_params_list[[18]] <- mac_params_arrowtooth
+
+
+
+# Export to text file
+# writeLines(as.character(SA_params_list), paste0(here("tables"), "/SA_length_maturity_params_file.txt"))
+# Have to make some manual edits to this file (removing commas, "c()") to reformat as SA model input
