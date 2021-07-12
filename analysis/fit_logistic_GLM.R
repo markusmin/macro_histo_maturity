@@ -1,5 +1,8 @@
 ### Fitting logistic curves to maturity ###
 
+# NOTE: This cold is redundant with the new file "fit_logistic_GLM_sensitivity_testing.R" and therefore no longer needs to be run.
+
+
 # This code calculates L50 for all three species and produces Figure 1
 # This is v2 because I'm now making sure to use the re-read files
 
