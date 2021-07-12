@@ -1441,7 +1441,7 @@ cnry_80_84_glm_results$plusminusCI95 <- round(cnry_80_84_glm_results$plusminusCI
 
 # add columns for data pre-processing steps
 cnry_80_84_glm_results$resting_stage_removed <- c("No", "Yes", "No", "Yes")
-cnry_80_84_glm_results$spwn_season_iso <- c("No", "No", "Yes", "Yes")
+cnry_80_84_glm_results$spawning_season_isolated <- c("No", "No", "Yes", "Yes")
 ```
 
 ### Canary rockfish, 2010-2018
@@ -1481,7 +1481,7 @@ cnry_10_18_glm_results$plusminusCI95 <- round(cnry_10_18_glm_results$plusminusCI
 
 # add columns for data pre-processing steps
 cnry_10_18_glm_results$resting_stage_removed <- c("No", "Yes", "No", "Yes")
-cnry_10_18_glm_results$spwn_season_iso <- c("No", "No", "Yes", "Yes")
+cnry_10_18_glm_results$spawning_season_isolated <- c("No", "No", "Yes", "Yes")
 ```
 
 ### Merge canary results and export
@@ -1489,7 +1489,10 @@ cnry_10_18_glm_results$spwn_season_iso <- c("No", "No", "Yes", "Yes")
 cnry_80_84_glm_results %>% 
   bind_rows(., cnry_10_18_glm_results) -> cnry_hist_sensitivity_table
 
-write.csv(cnry_hist_sensitivity_table, here("tables", "canary_historical_sensitivity_table.csv"), row.names = FALSE)
+# Reorder columns for table, remove some (columns 1 and 3, which are the names of the files and the plusminusCI95)
+cnry_hist_sensitivity_table_forexport <- cnry_hist_sensitivity_table[,c(4, 9, 10, 8, 2, 5, 6, 7)]
+
+write.csv(cnry_hist_sensitivity_table_forexport, here("tables", "canary_historical_sensitivity_table.csv"), row.names = FALSE)
 ```
 
 ### Sablefish, 1995-2001
@@ -1529,7 +1532,7 @@ sabl_f_95_01_glm_results$plusminusCI95 <- round(sabl_f_95_01_glm_results$plusmin
 
 # add columns for data pre-processing steps
 sabl_f_95_01_glm_results$resting_stage_removed <- c("No", "No", "Yes", "No", "Yes")
-sabl_f_95_01_glm_results$spwn_season_iso <- c("No", "No", "No", "Yes", "Yes")
+sabl_f_95_01_glm_results$spawning_season_isolated <- c("No", "No", "No", "Yes", "Yes")
 sabl_f_95_01_glm_results$immature_70cm_plus_removed <- c("No", "Yes", "Yes", "Yes", "Yes")
 ```
 
@@ -1541,7 +1544,7 @@ sabl_f_95_01_glm_results$immature_70cm_plus_removed <- c("No", "Yes", "Yes", "Ye
 sabl_f_07_18_glm_results <- rbind(sabl_f_07_18_mat, sabl_f_no70immature_07_18_mat, sabl_no7no8_no70immature_07_18_mat, sabl_spwn_no70immature_07_18_mat, sabl_spwn_no70immature_no7no8_07_18_mat)
 colnames(sabl_f_07_18_glm_results) = c("Lmat50", "plusminusCI95")
 sabl_f_07_18_glm_results = as.data.frame(sabl_f_07_18_glm_results)
-sabl_f_07_18_glm_results$time_period <- "1995-2001"
+sabl_f_07_18_glm_results$time_period <- "2007-2018"
 sabl_f_07_18_glm_results <- rownames_to_column(sabl_f_07_18_glm_results, "data_processing")
 sabl_f_07_18_glm_results %>% 
   mutate(., CI_95 = paste0(round(Lmat50-plusminusCI95,2), "-", round(Lmat50+plusminusCI95,2))) -> sabl_f_07_18_glm_results
@@ -1571,7 +1574,7 @@ sabl_f_07_18_glm_results$plusminusCI95 <- round(sabl_f_07_18_glm_results$plusmin
 
 # add columns for data pre-processing steps
 sabl_f_07_18_glm_results$resting_stage_removed <- c("No", "No", "Yes", "No", "Yes")
-sabl_f_07_18_glm_results$spwn_season_iso <- c("No", "No", "No", "Yes", "Yes")
+sabl_f_07_18_glm_results$spawning_season_isolated <- c("No", "No", "No", "Yes", "Yes")
 sabl_f_07_18_glm_results$immature_70cm_plus_removed <- c("No", "Yes", "Yes", "Yes", "Yes")
 ```
 
@@ -1581,7 +1584,10 @@ sabl_f_07_18_glm_results$immature_70cm_plus_removed <- c("No", "Yes", "Yes", "Ye
 sabl_f_95_01_glm_results %>% 
   bind_rows(., sabl_f_07_18_glm_results) -> sabl_hist_sensitivity_table
 
-write.csv(sabl_hist_sensitivity_table, here("tables", "sablefish_historical_sensitivity_table.csv"), row.names = FALSE)
+# Reorder columns for table, remove some (columns 1 and 3, which are the names of the files and the plusminusCI95)
+sabl_hist_sensitivity_table_forexport <- sabl_hist_sensitivity_table[,c(4, 9, 10, 11, 8, 2, 5, 6, 7)]
+
+write.csv(sabl_hist_sensitivity_table_forexport, here("tables", "sablefish_historical_sensitivity_table.csv"), row.names = FALSE)
 ```
 
 # Plot - each individually
