@@ -27,6 +27,11 @@ cnry_hist <- clean_names(cnry_hist)
 cnry_hist %>% 
   mutate(length_cm = round(fish_length/10, 0)) -> cnry_hist
 
+# Remove any data points where length or macro maturity is missing
+cnry_hist %>% 
+  subset(!(is.na(length_cm))) %>% 
+  subset(!(is.na(macro_maturity))) -> cnry_hist
+
 # sablefish
 sabl_hist <- read_excel(here("data", "SABL_O_Master.xlsx"))
 sabl_hist <- clean_names(sabl_hist)
@@ -35,6 +40,11 @@ sabl_hist <- clean_names(sabl_hist)
 sabl_hist %>% 
   mutate(length_cm = round(fish_length/10, 0)) %>% 
   mutate(macro_maturity = ifelse(maturity_agcode %in% c(1,2), 0, 1)) -> sabl_hist
+
+# Remove any data points where length or macro maturity is missing
+sabl_hist %>% 
+  subset(!(is.na(length_cm))) %>% 
+  subset(!(is.na(macro_maturity))) -> sabl_hist
 
 # Set figure directory
 fig_dir <- here("figures")
@@ -161,7 +171,7 @@ Sablefish:
 - Remove problematic codes:
   - 7 (resting) - high degree of mis-assignment
   - 8 (mature) - no way of assessing accuracy because this code is no longer used
-- Remove clearly mis-assigned fish: immature fish >= 65 cm
+- Remove clearly mis-assigned fish: immature fish >= 70 cm
 
 ### Canary
 ```{r canary_subset_data}
@@ -233,47 +243,47 @@ sabl_f_95_01 <- subset(sabl_f, sample_year %in% c(1995, 1996, 1997, 1998, 1999, 
 # Subset 2007-2018
 sabl_f_07_18 <- subset(sabl_f, sample_year %in% c(2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018))
 
-### All seasons, all codes, large immature fish (>= 65 cm) REMOVED
-sabl_f_no65immature <- subset(sabl_f, !(fish_length >= 650 & maturity_agcode %in% c(1, 2)))
+### All seasons, all codes, large immature fish (>= 70 cm) REMOVED
+sabl_f_no70immature <- subset(sabl_f, !(fish_length >= 700 & maturity_agcode %in% c(1, 2)))
 
 # Subset 1995-2001
-sabl_f_no65immature_95_01 <- subset(sabl_f_no65immature, sample_year %in% c(1995, 1996, 1997, 1998, 1999, 2000, 2001))
+sabl_f_no70immature_95_01 <- subset(sabl_f_no70immature, sample_year %in% c(1995, 1996, 1997, 1998, 1999, 2000, 2001))
 
 # Subset 2007-2018
-sabl_f_no65immature_07_18 <- subset(sabl_f_no65immature, sample_year %in% c(2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018))
+sabl_f_no70immature_07_18 <- subset(sabl_f_no70immature, sample_year %in% c(2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018))
 
 
-### Spawning season, all codes, large immature fish (>= 65 cm) REMOVED
-subset(sabl_f_no65immature, sample_month >= 10 | sample_month <= 2) -> sabl_f_spwn_no65immature
-
-
-# Subset 1995-2001
-sabl_f_spwn_no65immature_95_01 <- subset(sabl_f_spwn_no65immature, sample_year %in% c(1995, 1996, 1997, 1998, 1999, 2000, 2001))
-
-# Subset 2007-2018
-sabl_f_spwn_no65immature_07_18 <- subset(sabl_f_spwn_no65immature, sample_year %in% c(2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018))
-
-
-### Spawning season, no 7 no 8, large immature fish (>= 65 cm) REMOVED
-subset(sabl_f_no65immature, sample_month >= 10 | sample_month <= 2) %>% 
-  subset(., !(maturity_agcode %in% c(7, 8))) -> sabl_f_spwn_no65immature_no7no8
-
-# Subset 1995-2001
-sabl_f_spwn_no65immature_no7no8_95_01 <- subset(sabl_f_spwn_no65immature_no7no8, sample_year %in% c(1995, 1996, 1997, 1998, 1999, 2000, 2001))
-
-# Subset 2007-2018
-sabl_f_spwn_no65immature_no7no8_07_18 <- subset(sabl_f_spwn_no65immature_no7no8, sample_year %in% c(2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018))
-
-### All seasons, no 7 no 8, no fish >= 65 cm that are immature
-sabl_f_no65immature %>% 
-  subset(., !(maturity_agcode %in% c(7, 8))) -> sabl_f_no7no8_no65immature
+### Spawning season, all codes, large immature fish (>= 70 cm) REMOVED
+subset(sabl_f_no70immature, sample_month >= 10 | sample_month <= 2) -> sabl_f_spwn_no70immature
 
 
 # Subset 1995-2001
-sabl_f_no7no8_no65immature_95_01 <- subset(sabl_f_no7no8_no65immature, sample_year %in% c(1995, 1996, 1997, 1998, 1999, 2000, 2001))
+sabl_f_spwn_no70immature_95_01 <- subset(sabl_f_spwn_no70immature, sample_year %in% c(1995, 1996, 1997, 1998, 1999, 2000, 2001))
 
 # Subset 2007-2018
-sabl_f_no7no8_no65immature_07_18 <- subset(sabl_f_no7no8_no65immature, sample_year %in% c(2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018))
+sabl_f_spwn_no70immature_07_18 <- subset(sabl_f_spwn_no70immature, sample_year %in% c(2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018))
+
+
+### Spawning season, no 7 no 8, large immature fish (>= 70 cm) REMOVED
+subset(sabl_f_no70immature, sample_month >= 10 | sample_month <= 2) %>% 
+  subset(., !(maturity_agcode %in% c(7, 8))) -> sabl_f_spwn_no70immature_no7no8
+
+# Subset 1995-2001
+sabl_f_spwn_no70immature_no7no8_95_01 <- subset(sabl_f_spwn_no70immature_no7no8, sample_year %in% c(1995, 1996, 1997, 1998, 1999, 2000, 2001))
+
+# Subset 2007-2018
+sabl_f_spwn_no70immature_no7no8_07_18 <- subset(sabl_f_spwn_no70immature_no7no8, sample_year %in% c(2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018))
+
+### All seasons, no 7 no 8, no fish >= 70 cm that are immature
+sabl_f_no70immature %>% 
+  subset(., !(maturity_agcode %in% c(7, 8))) -> sabl_f_no7no8_no70immature
+
+
+# Subset 1995-2001
+sabl_f_no7no8_no70immature_95_01 <- subset(sabl_f_no7no8_no70immature, sample_year %in% c(1995, 1996, 1997, 1998, 1999, 2000, 2001))
+
+# Subset 2007-2018
+sabl_f_no7no8_no70immature_07_18 <- subset(sabl_f_no7no8_no70immature, sample_year %in% c(2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018))
 ```
 
 
@@ -529,149 +539,149 @@ sabl_f_07_18 %>%
 
 ```
 
-#### All seasons, all codes, no immature fish >= 65 cm
-```{r sabl_calc_maturity_props_allseasons_allcodes_no65immature}
+#### All seasons, all codes, no immature fish >= 70 cm
+```{r sabl_calc_maturity_props_allseasons_allcodes_no70immature}
 
 ### 1995-2001 ###
 
 # Calculate proportion mature at each length
-sabl_f_no65immature_95_01 %>% 
+sabl_f_no70immature_95_01 %>% 
   mutate(length_cm = round(fish_length/10,0)) %>% 
   group_by(length_cm) %>% 
-  summarise(prop_mature = mean(macro_maturity)) -> sabl_prop_mature_f_no65immature_95_01
+  summarise(prop_mature = mean(macro_maturity)) -> sabl_prop_mature_f_no70immature_95_01
 
 # count numbers of fish in each length, join
-sabl_f_no65immature_95_01 %>% 
+sabl_f_no70immature_95_01 %>% 
   mutate(length_cm = round(fish_length/10,0)) %>% 
   group_by(length_cm) %>% 
   count(spid) %>% 
   dplyr::select(-spid) %>% 
-  right_join(., sabl_prop_mature_f_no65immature_95_01, by = "length_cm") -> sabl_prop_mature_f_no65immature_95_01
+  right_join(., sabl_prop_mature_f_no70immature_95_01, by = "length_cm") -> sabl_prop_mature_f_no70immature_95_01
 
 ### 2007-2018 ###
 
 # Calculate proportion mature at each length
-sabl_f_no65immature_07_18 %>% 
+sabl_f_no70immature_07_18 %>% 
   mutate(length_cm = round(fish_length/10,0)) %>% 
   group_by(length_cm) %>% 
-  summarise(prop_mature = mean(macro_maturity)) -> sabl_prop_mature_f_no65immature_07_18
+  summarise(prop_mature = mean(macro_maturity)) -> sabl_prop_mature_f_no70immature_07_18
 
 # count numbers of fish in each length, join
-sabl_f_no65immature_07_18 %>% 
+sabl_f_no70immature_07_18 %>% 
   mutate(length_cm = round(fish_length/10,0)) %>% 
   group_by(length_cm) %>% 
   count(spid) %>% 
   dplyr::select(-spid) %>% 
-  right_join(., sabl_prop_mature_f_no65immature_07_18, by = "length_cm") -> sabl_prop_mature_f_no65immature_07_18
+  right_join(., sabl_prop_mature_f_no70immature_07_18, by = "length_cm") -> sabl_prop_mature_f_no70immature_07_18
 
 ```
 
-#### All seasons, no 7 no 8, no immature fish >= 65 cm
-```{r sabl_calc_maturity_props_allseasons_allcodes_no7no8_no65immature}
+#### All seasons, no 7 no 8, no immature fish >= 70 cm
+```{r sabl_calc_maturity_props_allseasons_allcodes_no7no8_no70immature}
 
 ### 1995-2001 ###
 
 # Calculate proportion mature at each length
-sabl_f_no7no8_no65immature_95_01 %>% 
+sabl_f_no7no8_no70immature_95_01 %>% 
   mutate(length_cm = round(fish_length/10,0)) %>% 
   group_by(length_cm) %>% 
-  summarise(prop_mature = mean(macro_maturity)) -> sabl_prop_mature_f_no7no8_no65immature_95_01
+  summarise(prop_mature = mean(macro_maturity)) -> sabl_prop_mature_f_no7no8_no70immature_95_01
 
 # count numbers of fish in each length, join
-sabl_f_no7no8_no65immature_95_01 %>% 
+sabl_f_no7no8_no70immature_95_01 %>% 
   mutate(length_cm = round(fish_length/10,0)) %>% 
   group_by(length_cm) %>% 
   count(spid) %>% 
   dplyr::select(-spid) %>% 
-  right_join(., sabl_prop_mature_f_no7no8_no65immature_95_01, by = "length_cm") -> sabl_prop_mature_f_no7no8_no65immature_95_01
+  right_join(., sabl_prop_mature_f_no7no8_no70immature_95_01, by = "length_cm") -> sabl_prop_mature_f_no7no8_no70immature_95_01
 
 ### 2007-2018 ###
 
 # Calculate proportion mature at each length
-sabl_f_no7no8_no65immature_07_18 %>% 
+sabl_f_no7no8_no70immature_07_18 %>% 
   mutate(length_cm = round(fish_length/10,0)) %>% 
   group_by(length_cm) %>% 
-  summarise(prop_mature = mean(macro_maturity)) -> sabl_prop_mature_f_no7no8_no65immature_07_18
+  summarise(prop_mature = mean(macro_maturity)) -> sabl_prop_mature_f_no7no8_no70immature_07_18
 
 # count numbers of fish in each length, join
-sabl_f_no7no8_no65immature_07_18 %>% 
+sabl_f_no7no8_no70immature_07_18 %>% 
   mutate(length_cm = round(fish_length/10,0)) %>% 
   group_by(length_cm) %>% 
   count(spid) %>% 
   dplyr::select(-spid) %>% 
-  right_join(., sabl_prop_mature_f_no7no8_no65immature_07_18, by = "length_cm") -> sabl_prop_mature_f_no7no8_no65immature_07_18
+  right_join(., sabl_prop_mature_f_no7no8_no70immature_07_18, by = "length_cm") -> sabl_prop_mature_f_no7no8_no70immature_07_18
 
 ```
 
 
-#### Spawning season, all codes, no fish >= 65 cm that are immature
-```{r sabl_calc_maturity_props_allcodes_no65immature}
+#### Spawning season, all codes, no fish >= 70 cm that are immature
+```{r sabl_calc_maturity_props_allcodes_no70immature}
 ### 1995-2001 ###
 
 # Calculate proportion mature at each length
-sabl_f_spwn_no65immature_95_01 %>% 
+sabl_f_spwn_no70immature_95_01 %>% 
   mutate(length_cm = round(fish_length/10,0)) %>% 
   group_by(length_cm) %>% 
-  summarise(prop_mature = mean(macro_maturity)) -> sabl_prop_mature_f_spwn_no65immature_95_01
+  summarise(prop_mature = mean(macro_maturity)) -> sabl_prop_mature_f_spwn_no70immature_95_01
 
 # count numbers of fish in each length, join
-sabl_f_spwn_no65immature_95_01 %>% 
+sabl_f_spwn_no70immature_95_01 %>% 
   mutate(length_cm = round(fish_length/10,0)) %>% 
   group_by(length_cm) %>% 
   count(spid) %>% 
   dplyr::select(-spid) %>% 
-  right_join(., sabl_prop_mature_f_spwn_no65immature_95_01, by = "length_cm") -> sabl_prop_mature_f_spwn_no65immature_95_01
+  right_join(., sabl_prop_mature_f_spwn_no70immature_95_01, by = "length_cm") -> sabl_prop_mature_f_spwn_no70immature_95_01
 
 ### 2007-2018 ###
 
 # Calculate proportion mature at each length
-sabl_f_spwn_no65immature_07_18 %>% 
+sabl_f_spwn_no70immature_07_18 %>% 
   mutate(length_cm = round(fish_length/10,0)) %>% 
   group_by(length_cm) %>% 
-  summarise(prop_mature = mean(macro_maturity)) -> sabl_prop_mature_f_spwn_no65immature_07_18
+  summarise(prop_mature = mean(macro_maturity)) -> sabl_prop_mature_f_spwn_no70immature_07_18
 
 # count numbers of fish in each length, join
-sabl_f_spwn_no65immature_07_18 %>% 
+sabl_f_spwn_no70immature_07_18 %>% 
   mutate(length_cm = round(fish_length/10,0)) %>% 
   group_by(length_cm) %>% 
   count(spid) %>% 
   dplyr::select(-spid) %>% 
-  right_join(., sabl_prop_mature_f_spwn_no65immature_07_18, by = "length_cm") -> sabl_prop_mature_f_spwn_no65immature_07_18
+  right_join(., sabl_prop_mature_f_spwn_no70immature_07_18, by = "length_cm") -> sabl_prop_mature_f_spwn_no70immature_07_18
 ```
 
-#### Spawning season, no 7 no 8, no fish >= 65 cm that are immature
-```{r sabl_calc_maturity_props_no65immature_no7no8}
+#### Spawning season, no 7 no 8, no fish >= 70 cm that are immature
+```{r sabl_calc_maturity_props_no70immature_no7no8}
 ### 1995-2001 ###
 
 # Calculate proportion mature at each length
-sabl_f_spwn_no65immature_no7no8_95_01 %>% 
+sabl_f_spwn_no70immature_no7no8_95_01 %>% 
   mutate(length_cm = round(fish_length/10,0)) %>% 
   group_by(length_cm) %>% 
-  summarise(prop_mature = mean(macro_maturity)) -> sabl_prop_mature_f_spwn_no65immature_no7no8_95_01
+  summarise(prop_mature = mean(macro_maturity)) -> sabl_prop_mature_f_spwn_no70immature_no7no8_95_01
 
 # count numbers of fish in each length, join
-sabl_f_spwn_no65immature_no7no8_95_01 %>% 
+sabl_f_spwn_no70immature_no7no8_95_01 %>% 
   mutate(length_cm = round(fish_length/10,0)) %>% 
   group_by(length_cm) %>% 
   count(spid) %>% 
   dplyr::select(-spid) %>% 
-  right_join(., sabl_prop_mature_f_spwn_no65immature_no7no8_95_01, by = "length_cm") -> sabl_prop_mature_f_spwn_no65immature_no7no8_95_01
+  right_join(., sabl_prop_mature_f_spwn_no70immature_no7no8_95_01, by = "length_cm") -> sabl_prop_mature_f_spwn_no70immature_no7no8_95_01
 
 ### 2007-2018 ###
 
 # Calculate proportion mature at each length
-sabl_f_spwn_no65immature_no7no8_07_18 %>% 
+sabl_f_spwn_no70immature_no7no8_07_18 %>% 
   mutate(length_cm = round(fish_length/10,0)) %>% 
   group_by(length_cm) %>% 
-  summarise(prop_mature = mean(macro_maturity)) -> sabl_prop_mature_f_spwn_no65immature_no7no8_07_18
+  summarise(prop_mature = mean(macro_maturity)) -> sabl_prop_mature_f_spwn_no70immature_no7no8_07_18
 
 # count numbers of fish in each length, join
-sabl_f_spwn_no65immature_no7no8_07_18 %>% 
+sabl_f_spwn_no70immature_no7no8_07_18 %>% 
   mutate(length_cm = round(fish_length/10,0)) %>% 
   group_by(length_cm) %>% 
   count(spid) %>% 
   dplyr::select(-spid) %>% 
-  right_join(., sabl_prop_mature_f_spwn_no65immature_no7no8_07_18, by = "length_cm") -> sabl_prop_mature_f_spwn_no65immature_no7no8_07_18
+  right_join(., sabl_prop_mature_f_spwn_no70immature_no7no8_07_18, by = "length_cm") -> sabl_prop_mature_f_spwn_no70immature_no7no8_07_18
 ```
 
 
@@ -760,7 +770,7 @@ cor(cnry_f_10_18$length_cm, cnry_f_10_18$macro_maturity)
 
 sA.cnry_10_18 <- summary (fit.mat.glm.cnry_10_18)$coef[1,2] 
 sB.cnry_10_18 <- summary (fit.mat.glm.cnry_10_18)$coef[2,2]    
-r.cnry_10_18 <-cor(cnry_f_10_18$length_cm, cnry_f_10_18$macro_maturity)
+r.cnry_10_18 <- cor(cnry_f_10_18$length_cm, cnry_f_10_18$macro_maturity)
 n.1 <- length(cnry_f_10_18$length_cm)
 
 #Variance estimator
@@ -816,7 +826,7 @@ vector.cnry_no7no8_98_03 = c(fit.mat.glm.cnry_no7no8_98_03$coefficients)
 # A_glm = intercept
 # B_glm = slope
 
-A_glm.cnry_no7no8_98_03 <- vector.cnry_no7no8_98_03[1] 
+A_glm.cnry_no7no8_98_03 <- vector.cnry_no7no8_98_03[1]
 B_glm.cnry_no7no8_98_03 <- vector.cnry_no7no8_98_03[2]
 Lmat50.cnry_no7no8_98_03 = -(A_glm.cnry_no7no8_98_03/B_glm.cnry_no7no8_98_03)
 Lmat50.cnry_no7no8_98_03
@@ -1134,261 +1144,444 @@ con.sabl_f_07_18 <- 1.96*(sqrt(deltamethod.sabl_f_07_18)/sqrt(n.1))
 sabl_f_07_18_mat = c(Lmat50.sabl_f_07_18,con.sabl_f_07_18)
 ```
 
-### All seasons, all codes, no immature fish >= 65cm
-```{r fit_glm_sabl_allseasons_allcodes_no65immature}
+### All seasons, all codes, no immature fish >= 70cm
+```{r fit_glm_sabl_allseasons_allcodes_no70immature}
 
 ### 1995-2001 ###
 
-fit.mat.glm.sabl_f_no65immature_95_01 <- glm(maturity ~ 1 + length, data <-data.frame(length = sabl_f_no65immature_95_01$length_cm, maturity <- sabl_f_no65immature_95_01$macro_maturity),
+fit.mat.glm.sabl_f_no70immature_95_01 <- glm(maturity ~ 1 + length, data <-data.frame(length = sabl_f_no70immature_95_01$length_cm, maturity <- sabl_f_no70immature_95_01$macro_maturity),
                                 family = binomial(link ="logit"))
-vector.sabl_f_no65immature_95_01 = c(fit.mat.glm.sabl_f_no65immature_95_01$coefficients)
+vector.sabl_f_no70immature_95_01 = c(fit.mat.glm.sabl_f_no70immature_95_01$coefficients)
 
 # A_glm = intercept
 # B_glm = slope
 
-A_glm.sabl_f_no65immature_95_01 <- vector.sabl_f_no65immature_95_01[1] 
-B_glm.sabl_f_no65immature_95_01 <- vector.sabl_f_no65immature_95_01[2]
-Lmat50.sabl_f_no65immature_95_01 = -(A_glm.sabl_f_no65immature_95_01/B_glm.sabl_f_no65immature_95_01)
-Lmat50.sabl_f_no65immature_95_01
+A_glm.sabl_f_no70immature_95_01 <- vector.sabl_f_no70immature_95_01[1] 
+B_glm.sabl_f_no70immature_95_01 <- vector.sabl_f_no70immature_95_01[2]
+Lmat50.sabl_f_no70immature_95_01 = -(A_glm.sabl_f_no70immature_95_01/B_glm.sabl_f_no70immature_95_01)
+Lmat50.sabl_f_no70immature_95_01
 
-cor(sabl_f_no65immature_95_01$length_cm, sabl_f_no65immature_95_01$macro_maturity)
+cor(sabl_f_no70immature_95_01$length_cm, sabl_f_no70immature_95_01$macro_maturity)
 
-sA.sabl_f_no65immature_95_01 <- summary (fit.mat.glm.sabl_f_no65immature_95_01)$coef[1,2] 
-sB.sabl_f_no65immature_95_01 <- summary (fit.mat.glm.sabl_f_no65immature_95_01)$coef[2,2]    
-r.sabl_f_no65immature_95_01 <-cor(sabl_f_no65immature_95_01$length_cm, sabl_f_no65immature_95_01$macro_maturity)
-n.1 <- length(sabl_f_no65immature_95_01$length_cm)
+sA.sabl_f_no70immature_95_01 <- summary (fit.mat.glm.sabl_f_no70immature_95_01)$coef[1,2] 
+sB.sabl_f_no70immature_95_01 <- summary (fit.mat.glm.sabl_f_no70immature_95_01)$coef[2,2]    
+r.sabl_f_no70immature_95_01 <-cor(sabl_f_no70immature_95_01$length_cm, sabl_f_no70immature_95_01$macro_maturity)
+n.1 <- length(sabl_f_no70immature_95_01$length_cm)
 
 #Variance estimator
-deltamethod.sabl_f_no65immature_95_01 <- ((sA.sabl_f_no65immature_95_01^2)/(B_glm.sabl_f_no65immature_95_01^2))- ((2*A_glm.sabl_f_no65immature_95_01*sA.sabl_f_no65immature_95_01*sB.sabl_f_no65immature_95_01*r.sabl_f_no65immature_95_01)/(B_glm.sabl_f_no65immature_95_01^3))+ (((A_glm.sabl_f_no65immature_95_01^2)*(sB.sabl_f_no65immature_95_01^2))/(B_glm.sabl_f_no65immature_95_01^4))
-deltamethod.sabl_f_no65immature_95_01
+deltamethod.sabl_f_no70immature_95_01 <- ((sA.sabl_f_no70immature_95_01^2)/(B_glm.sabl_f_no70immature_95_01^2))- ((2*A_glm.sabl_f_no70immature_95_01*sA.sabl_f_no70immature_95_01*sB.sabl_f_no70immature_95_01*r.sabl_f_no70immature_95_01)/(B_glm.sabl_f_no70immature_95_01^3))+ (((A_glm.sabl_f_no70immature_95_01^2)*(sB.sabl_f_no70immature_95_01^2))/(B_glm.sabl_f_no70immature_95_01^4))
+deltamethod.sabl_f_no70immature_95_01
 
 ## 95% Confidence Interval equation
 
-con.sabl_f_no65immature_95_01 <- 1.96*(sqrt(deltamethod.sabl_f_no65immature_95_01)/sqrt(n.1))
-sabl_f_no65immature_95_01_mat = c(Lmat50.sabl_f_no65immature_95_01,con.sabl_f_no65immature_95_01)
+con.sabl_f_no70immature_95_01 <- 1.96*(sqrt(deltamethod.sabl_f_no70immature_95_01)/sqrt(n.1))
+sabl_f_no70immature_95_01_mat = c(Lmat50.sabl_f_no70immature_95_01,con.sabl_f_no70immature_95_01)
 
 
 ### 2007-2018 ###
 
-fit.mat.glm.sabl_f_no65immature_07_18 <- glm(maturity ~ 1 + length, data <-data.frame(length = sabl_f_no65immature_07_18$length_cm, maturity <- sabl_f_no65immature_07_18$macro_maturity),
+fit.mat.glm.sabl_f_no70immature_07_18 <- glm(maturity ~ 1 + length, data <-data.frame(length = sabl_f_no70immature_07_18$length_cm, maturity <- sabl_f_no70immature_07_18$macro_maturity),
                                 family = binomial(link ="logit"))
-vector.sabl_f_no65immature_07_18 = c(fit.mat.glm.sabl_f_no65immature_07_18$coefficients)
+vector.sabl_f_no70immature_07_18 = c(fit.mat.glm.sabl_f_no70immature_07_18$coefficients)
 
 # A_glm = intercept
 # B_glm = slope
 
-A_glm.sabl_f_no65immature_07_18 <- vector.sabl_f_no65immature_07_18[1] 
-B_glm.sabl_f_no65immature_07_18 <- vector.sabl_f_no65immature_07_18[2]
-Lmat50.sabl_f_no65immature_07_18 = -(A_glm.sabl_f_no65immature_07_18/B_glm.sabl_f_no65immature_07_18)
-Lmat50.sabl_f_no65immature_07_18
+A_glm.sabl_f_no70immature_07_18 <- vector.sabl_f_no70immature_07_18[1] 
+B_glm.sabl_f_no70immature_07_18 <- vector.sabl_f_no70immature_07_18[2]
+Lmat50.sabl_f_no70immature_07_18 = -(A_glm.sabl_f_no70immature_07_18/B_glm.sabl_f_no70immature_07_18)
+Lmat50.sabl_f_no70immature_07_18
 
-cor(sabl_f_no65immature_07_18$length_cm, sabl_f_no65immature_07_18$macro_maturity)
+cor(sabl_f_no70immature_07_18$length_cm, sabl_f_no70immature_07_18$macro_maturity)
 
-sA.sabl_f_no65immature_07_18 <- summary (fit.mat.glm.sabl_f_no65immature_07_18)$coef[1,2] 
-sB.sabl_f_no65immature_07_18 <- summary (fit.mat.glm.sabl_f_no65immature_07_18)$coef[2,2]    
-r.sabl_f_no65immature_07_18 <-cor(sabl_f_no65immature_07_18$length_cm, sabl_f_no65immature_07_18$macro_maturity)
-n.1 <- length(sabl_f_no65immature_07_18$length_cm)
+sA.sabl_f_no70immature_07_18 <- summary (fit.mat.glm.sabl_f_no70immature_07_18)$coef[1,2] 
+sB.sabl_f_no70immature_07_18 <- summary (fit.mat.glm.sabl_f_no70immature_07_18)$coef[2,2]    
+r.sabl_f_no70immature_07_18 <-cor(sabl_f_no70immature_07_18$length_cm, sabl_f_no70immature_07_18$macro_maturity)
+n.1 <- length(sabl_f_no70immature_07_18$length_cm)
 
 #Variance estimator
-deltamethod.sabl_f_no65immature_07_18 <- ((sA.sabl_f_no65immature_07_18^2)/(B_glm.sabl_f_no65immature_07_18^2))- ((2*A_glm.sabl_f_no65immature_07_18*sA.sabl_f_no65immature_07_18*sB.sabl_f_no65immature_07_18*r.sabl_f_no65immature_07_18)/(B_glm.sabl_f_no65immature_07_18^3))+ (((A_glm.sabl_f_no65immature_07_18^2)*(sB.sabl_f_no65immature_07_18^2))/(B_glm.sabl_f_no65immature_07_18^4))
-deltamethod.sabl_f_no65immature_07_18
+deltamethod.sabl_f_no70immature_07_18 <- ((sA.sabl_f_no70immature_07_18^2)/(B_glm.sabl_f_no70immature_07_18^2))- ((2*A_glm.sabl_f_no70immature_07_18*sA.sabl_f_no70immature_07_18*sB.sabl_f_no70immature_07_18*r.sabl_f_no70immature_07_18)/(B_glm.sabl_f_no70immature_07_18^3))+ (((A_glm.sabl_f_no70immature_07_18^2)*(sB.sabl_f_no70immature_07_18^2))/(B_glm.sabl_f_no70immature_07_18^4))
+deltamethod.sabl_f_no70immature_07_18
 
 ## 95% Confidence Interval equation
 
-con.sabl_f_no65immature_07_18 <- 1.96*(sqrt(deltamethod.sabl_f_no65immature_07_18)/sqrt(n.1))
-sabl_f_no65immature_07_18_mat = c(Lmat50.sabl_f_no65immature_07_18,con.sabl_f_no65immature_07_18)
+con.sabl_f_no70immature_07_18 <- 1.96*(sqrt(deltamethod.sabl_f_no70immature_07_18)/sqrt(n.1))
+sabl_f_no70immature_07_18_mat = c(Lmat50.sabl_f_no70immature_07_18,con.sabl_f_no70immature_07_18)
 ```
 
 
 
-### All seasons, no 7s no 8s and no fish >= 65 cm that are immature
-```{r fit_glm_sabl_no7no8_no65immature}
+### All seasons, no 7s no 8s and no fish >= 70 cm that are immature
+```{r fit_glm_sabl_no7no8_no70immature}
 
 ### 1995-2001 ###
 
-fit.mat.glm.sabl_no7no8_no65immature_95_01 <- glm(maturity ~ 1 + length, data <-data.frame(length = sabl_f_no7no8_no65immature_95_01$length_cm, maturity <- sabl_f_no7no8_no65immature_95_01$macro_maturity),
+fit.mat.glm.sabl_no7no8_no70immature_95_01 <- glm(maturity ~ 1 + length, data <-data.frame(length = sabl_f_no7no8_no70immature_95_01$length_cm, maturity <- sabl_f_no7no8_no70immature_95_01$macro_maturity),
                                                        family = binomial(link ="logit"))
-vector.sabl_no7no8_no65immature_95_01 = c(fit.mat.glm.sabl_no7no8_no65immature_95_01$coefficients)
+vector.sabl_no7no8_no70immature_95_01 = c(fit.mat.glm.sabl_no7no8_no70immature_95_01$coefficients)
 
 # A_glm = intercept
 # B_glm = slope
 
-A_glm.sabl_no7no8_no65immature_95_01 <- vector.sabl_no7no8_no65immature_95_01[1] 
-B_glm.sabl_no7no8_no65immature_95_01 <- vector.sabl_no7no8_no65immature_95_01[2]
-Lmat50.sabl_no7no8_no65immature_95_01 = -(A_glm.sabl_no7no8_no65immature_95_01/B_glm.sabl_no7no8_no65immature_95_01)
-Lmat50.sabl_no7no8_no65immature_95_01
+A_glm.sabl_no7no8_no70immature_95_01 <- vector.sabl_no7no8_no70immature_95_01[1] 
+B_glm.sabl_no7no8_no70immature_95_01 <- vector.sabl_no7no8_no70immature_95_01[2]
+Lmat50.sabl_no7no8_no70immature_95_01 = -(A_glm.sabl_no7no8_no70immature_95_01/B_glm.sabl_no7no8_no70immature_95_01)
+Lmat50.sabl_no7no8_no70immature_95_01
 
-cor(sabl_f_no7no8_no65immature_95_01$length_cm, sabl_f_no7no8_no65immature_95_01$macro_maturity)
+cor(sabl_f_no7no8_no70immature_95_01$length_cm, sabl_f_no7no8_no70immature_95_01$macro_maturity)
 
-sA.sabl_no7no8_no65immature_95_01 <- summary (fit.mat.glm.sabl_no7no8_no65immature_95_01)$coef[1,2] 
-sB.sabl_no7no8_no65immature_95_01 <- summary (fit.mat.glm.sabl_no7no8_no65immature_95_01)$coef[2,2]    
-r.sabl_no7no8_no65immature_95_01 <-cor(sabl_f_no7no8_no65immature_95_01$length_cm, sabl_f_no7no8_no65immature_95_01$macro_maturity)
-n.1 <- length(sabl_f_no7no8_no65immature_95_01$length_cm)
+sA.sabl_no7no8_no70immature_95_01 <- summary (fit.mat.glm.sabl_no7no8_no70immature_95_01)$coef[1,2] 
+sB.sabl_no7no8_no70immature_95_01 <- summary (fit.mat.glm.sabl_no7no8_no70immature_95_01)$coef[2,2]    
+r.sabl_no7no8_no70immature_95_01 <-cor(sabl_f_no7no8_no70immature_95_01$length_cm, sabl_f_no7no8_no70immature_95_01$macro_maturity)
+n.1 <- length(sabl_f_no7no8_no70immature_95_01$length_cm)
 
 #Variance estimator
-deltamethod.sabl_no7no8_no65immature_95_01 <- ((sA.sabl_no7no8_no65immature_95_01^2)/(B_glm.sabl_no7no8_no65immature_95_01^2))- ((2*A_glm.sabl_no7no8_no65immature_95_01*sA.sabl_no7no8_no65immature_95_01*sB.sabl_no7no8_no65immature_95_01*r.sabl_no7no8_no65immature_95_01)/(B_glm.sabl_no7no8_no65immature_95_01^3))+ (((A_glm.sabl_no7no8_no65immature_95_01^2)*(sB.sabl_no7no8_no65immature_95_01^2))/(B_glm.sabl_no7no8_no65immature_95_01^4))
-deltamethod.sabl_no7no8_no65immature_95_01
+deltamethod.sabl_no7no8_no70immature_95_01 <- ((sA.sabl_no7no8_no70immature_95_01^2)/(B_glm.sabl_no7no8_no70immature_95_01^2))- ((2*A_glm.sabl_no7no8_no70immature_95_01*sA.sabl_no7no8_no70immature_95_01*sB.sabl_no7no8_no70immature_95_01*r.sabl_no7no8_no70immature_95_01)/(B_glm.sabl_no7no8_no70immature_95_01^3))+ (((A_glm.sabl_no7no8_no70immature_95_01^2)*(sB.sabl_no7no8_no70immature_95_01^2))/(B_glm.sabl_no7no8_no70immature_95_01^4))
+deltamethod.sabl_no7no8_no70immature_95_01
 
 ## 95% Confidence Interval equation
 
-con.sabl_no7no8_no65immature_95_01 <- 1.96*(sqrt(deltamethod.sabl_no7no8_no65immature_95_01)/sqrt(n.1))
-sabl_no7no8_no65immature_95_01_mat = c(Lmat50.sabl_no7no8_no65immature_95_01,con.sabl_no7no8_no65immature_95_01)
+con.sabl_no7no8_no70immature_95_01 <- 1.96*(sqrt(deltamethod.sabl_no7no8_no70immature_95_01)/sqrt(n.1))
+sabl_no7no8_no70immature_95_01_mat = c(Lmat50.sabl_no7no8_no70immature_95_01,con.sabl_no7no8_no70immature_95_01)
 
 
 ### 2007-2018 ###
 
-fit.mat.glm.sabl_no7no8_no65immature_07_18 <- glm(maturity ~ 1 + length, data <-data.frame(length = sabl_f_no7no8_no65immature_07_18$length_cm, maturity <- sabl_f_no7no8_no65immature_07_18$macro_maturity),
+fit.mat.glm.sabl_no7no8_no70immature_07_18 <- glm(maturity ~ 1 + length, data <-data.frame(length = sabl_f_no7no8_no70immature_07_18$length_cm, maturity <- sabl_f_no7no8_no70immature_07_18$macro_maturity),
                                                        family = binomial(link ="logit"))
-vector.sabl_no7no8_no65immature_07_18 = c(fit.mat.glm.sabl_no7no8_no65immature_07_18$coefficients)
+vector.sabl_no7no8_no70immature_07_18 = c(fit.mat.glm.sabl_no7no8_no70immature_07_18$coefficients)
 
 # A_glm = intercept
 # B_glm = slope
 
-A_glm.sabl_no7no8_no65immature_07_18 <- vector.sabl_no7no8_no65immature_07_18[1] 
-B_glm.sabl_no7no8_no65immature_07_18 <- vector.sabl_no7no8_no65immature_07_18[2]
-Lmat50.sabl_no7no8_no65immature_07_18 = -(A_glm.sabl_no7no8_no65immature_07_18/B_glm.sabl_no7no8_no65immature_07_18)
-Lmat50.sabl_no7no8_no65immature_07_18
+A_glm.sabl_no7no8_no70immature_07_18 <- vector.sabl_no7no8_no70immature_07_18[1] 
+B_glm.sabl_no7no8_no70immature_07_18 <- vector.sabl_no7no8_no70immature_07_18[2]
+Lmat50.sabl_no7no8_no70immature_07_18 = -(A_glm.sabl_no7no8_no70immature_07_18/B_glm.sabl_no7no8_no70immature_07_18)
+Lmat50.sabl_no7no8_no70immature_07_18
 
-cor(sabl_f_no7no8_no65immature_07_18$length_cm, sabl_f_no7no8_no65immature_07_18$macro_maturity)
+cor(sabl_f_no7no8_no70immature_07_18$length_cm, sabl_f_no7no8_no70immature_07_18$macro_maturity)
 
-sA.sabl_no7no8_no65immature_07_18 <- summary (fit.mat.glm.sabl_no7no8_no65immature_07_18)$coef[1,2] 
-sB.sabl_no7no8_no65immature_07_18 <- summary (fit.mat.glm.sabl_no7no8_no65immature_07_18)$coef[2,2]    
-r.sabl_no7no8_no65immature_07_18 <-cor(sabl_f_no7no8_no65immature_07_18$length_cm, sabl_f_no7no8_no65immature_07_18$macro_maturity)
-n.1 <- length(sabl_f_no7no8_no65immature_07_18$length_cm)
+sA.sabl_no7no8_no70immature_07_18 <- summary (fit.mat.glm.sabl_no7no8_no70immature_07_18)$coef[1,2] 
+sB.sabl_no7no8_no70immature_07_18 <- summary (fit.mat.glm.sabl_no7no8_no70immature_07_18)$coef[2,2]    
+r.sabl_no7no8_no70immature_07_18 <-cor(sabl_f_no7no8_no70immature_07_18$length_cm, sabl_f_no7no8_no70immature_07_18$macro_maturity)
+n.1 <- length(sabl_f_no7no8_no70immature_07_18$length_cm)
 
 #Variance estimator
-deltamethod.sabl_no7no8_no65immature_07_18 <- ((sA.sabl_no7no8_no65immature_07_18^2)/(B_glm.sabl_no7no8_no65immature_07_18^2))- ((2*A_glm.sabl_no7no8_no65immature_07_18*sA.sabl_no7no8_no65immature_07_18*sB.sabl_no7no8_no65immature_07_18*r.sabl_no7no8_no65immature_07_18)/(B_glm.sabl_no7no8_no65immature_07_18^3))+ (((A_glm.sabl_no7no8_no65immature_07_18^2)*(sB.sabl_no7no8_no65immature_07_18^2))/(B_glm.sabl_no7no8_no65immature_07_18^4))
-deltamethod.sabl_no7no8_no65immature_07_18
+deltamethod.sabl_no7no8_no70immature_07_18 <- ((sA.sabl_no7no8_no70immature_07_18^2)/(B_glm.sabl_no7no8_no70immature_07_18^2))- ((2*A_glm.sabl_no7no8_no70immature_07_18*sA.sabl_no7no8_no70immature_07_18*sB.sabl_no7no8_no70immature_07_18*r.sabl_no7no8_no70immature_07_18)/(B_glm.sabl_no7no8_no70immature_07_18^3))+ (((A_glm.sabl_no7no8_no70immature_07_18^2)*(sB.sabl_no7no8_no70immature_07_18^2))/(B_glm.sabl_no7no8_no70immature_07_18^4))
+deltamethod.sabl_no7no8_no70immature_07_18
 
 ## 95% Confidence Interval equation
 
-con.sabl_no7no8_no65immature_07_18 <- 1.96*(sqrt(deltamethod.sabl_no7no8_no65immature_07_18)/sqrt(n.1))
-sabl_no7no8_no65immature_07_18_mat = c(Lmat50.sabl_no7no8_no65immature_07_18,con.sabl_no7no8_no65immature_07_18)
+con.sabl_no7no8_no70immature_07_18 <- 1.96*(sqrt(deltamethod.sabl_no7no8_no70immature_07_18)/sqrt(n.1))
+sabl_no7no8_no70immature_07_18_mat = c(Lmat50.sabl_no7no8_no70immature_07_18,con.sabl_no7no8_no70immature_07_18)
 ```
 
-### Spawning season, all codes and no fish >= 65 cm that are immature
-```{r fit_glm_sabl_allcodes_no65immature}
+### Spawning season, all codes and no fish >= 70 cm that are immature
+```{r fit_glm_sabl_allcodes_no70immature}
 ### 1995-2001 ###
-fit.mat.glm.sabl_spwn_no65immature_95_01 <- glm(maturity ~ 1 + length, data <-data.frame(length = sabl_f_spwn_no65immature_95_01$length_cm, maturity <- sabl_f_spwn_no65immature_95_01$macro_maturity),
+fit.mat.glm.sabl_spwn_no70immature_95_01 <- glm(maturity ~ 1 + length, data <-data.frame(length = sabl_f_spwn_no70immature_95_01$length_cm, maturity <- sabl_f_spwn_no70immature_95_01$macro_maturity),
                                                        family = binomial(link ="logit"))
-vector.sabl_spwn_no65immature_95_01 = c(fit.mat.glm.sabl_spwn_no65immature_95_01$coefficients)
+vector.sabl_spwn_no70immature_95_01 = c(fit.mat.glm.sabl_spwn_no70immature_95_01$coefficients)
 
 # A_glm = intercept
 # B_glm = slope
 
-A_glm.sabl_spwn_no65immature_95_01 <- vector.sabl_spwn_no65immature_95_01[1] 
-B_glm.sabl_spwn_no65immature_95_01 <- vector.sabl_spwn_no65immature_95_01[2]
-Lmat50.sabl_spwn_no65immature_95_01 = -(A_glm.sabl_spwn_no65immature_95_01/B_glm.sabl_spwn_no65immature_95_01)
-Lmat50.sabl_spwn_no65immature_95_01
+A_glm.sabl_spwn_no70immature_95_01 <- vector.sabl_spwn_no70immature_95_01[1] 
+B_glm.sabl_spwn_no70immature_95_01 <- vector.sabl_spwn_no70immature_95_01[2]
+Lmat50.sabl_spwn_no70immature_95_01 = -(A_glm.sabl_spwn_no70immature_95_01/B_glm.sabl_spwn_no70immature_95_01)
+Lmat50.sabl_spwn_no70immature_95_01
 
-cor(sabl_f_spwn_no65immature_95_01$length_cm, sabl_f_spwn_no65immature_95_01$macro_maturity)
+cor(sabl_f_spwn_no70immature_95_01$length_cm, sabl_f_spwn_no70immature_95_01$macro_maturity)
 
-sA.sabl_spwn_no65immature_95_01 <- summary (fit.mat.glm.sabl_spwn_no65immature_95_01)$coef[1,2] 
-sB.sabl_spwn_no65immature_95_01 <- summary (fit.mat.glm.sabl_spwn_no65immature_95_01)$coef[2,2]    
-r.sabl_spwn_no65immature_95_01 <-cor(sabl_f_spwn_no65immature_95_01$length_cm, sabl_f_spwn_no65immature_95_01$macro_maturity)
-n.1 <- length(sabl_f_spwn_no65immature_95_01$length_cm)
+sA.sabl_spwn_no70immature_95_01 <- summary (fit.mat.glm.sabl_spwn_no70immature_95_01)$coef[1,2] 
+sB.sabl_spwn_no70immature_95_01 <- summary (fit.mat.glm.sabl_spwn_no70immature_95_01)$coef[2,2]    
+r.sabl_spwn_no70immature_95_01 <-cor(sabl_f_spwn_no70immature_95_01$length_cm, sabl_f_spwn_no70immature_95_01$macro_maturity)
+n.1 <- length(sabl_f_spwn_no70immature_95_01$length_cm)
 
 #Variance estimator
-deltamethod.sabl_spwn_no65immature_95_01 <- ((sA.sabl_spwn_no65immature_95_01^2)/(B_glm.sabl_spwn_no65immature_95_01^2))- ((2*A_glm.sabl_spwn_no65immature_95_01*sA.sabl_spwn_no65immature_95_01*sB.sabl_spwn_no65immature_95_01*r.sabl_spwn_no65immature_95_01)/(B_glm.sabl_spwn_no65immature_95_01^3))+ (((A_glm.sabl_spwn_no65immature_95_01^2)*(sB.sabl_spwn_no65immature_95_01^2))/(B_glm.sabl_spwn_no65immature_95_01^4))
-deltamethod.sabl_spwn_no65immature_95_01
+deltamethod.sabl_spwn_no70immature_95_01 <- ((sA.sabl_spwn_no70immature_95_01^2)/(B_glm.sabl_spwn_no70immature_95_01^2))- ((2*A_glm.sabl_spwn_no70immature_95_01*sA.sabl_spwn_no70immature_95_01*sB.sabl_spwn_no70immature_95_01*r.sabl_spwn_no70immature_95_01)/(B_glm.sabl_spwn_no70immature_95_01^3))+ (((A_glm.sabl_spwn_no70immature_95_01^2)*(sB.sabl_spwn_no70immature_95_01^2))/(B_glm.sabl_spwn_no70immature_95_01^4))
+deltamethod.sabl_spwn_no70immature_95_01
 
 ## 95% Confidence Interval equation
 
-con.sabl_spwn_no65immature_95_01 <- 1.96*(sqrt(deltamethod.sabl_spwn_no65immature_95_01)/sqrt(n.1))
-sabl_spwn_no65immature_95_01_mat = c(Lmat50.sabl_spwn_no65immature_95_01,con.sabl_spwn_no65immature_95_01)
+con.sabl_spwn_no70immature_95_01 <- 1.96*(sqrt(deltamethod.sabl_spwn_no70immature_95_01)/sqrt(n.1))
+sabl_spwn_no70immature_95_01_mat = c(Lmat50.sabl_spwn_no70immature_95_01,con.sabl_spwn_no70immature_95_01)
 
 
 ### 2007-2018 ###
 
-fit.mat.glm.sabl_spwn_no65immature_07_18 <- glm(maturity ~ 1 + length, data <-data.frame(length = sabl_f_spwn_no65immature_07_18$length_cm, maturity <- sabl_f_spwn_no65immature_07_18$macro_maturity),
+fit.mat.glm.sabl_spwn_no70immature_07_18 <- glm(maturity ~ 1 + length, data <-data.frame(length = sabl_f_spwn_no70immature_07_18$length_cm, maturity <- sabl_f_spwn_no70immature_07_18$macro_maturity),
                                                        family = binomial(link ="logit"))
-vector.sabl_spwn_no65immature_07_18 = c(fit.mat.glm.sabl_spwn_no65immature_07_18$coefficients)
+vector.sabl_spwn_no70immature_07_18 = c(fit.mat.glm.sabl_spwn_no70immature_07_18$coefficients)
 
 # A_glm = intercept
 # B_glm = slope
 
-A_glm.sabl_spwn_no65immature_07_18 <- vector.sabl_spwn_no65immature_07_18[1] 
-B_glm.sabl_spwn_no65immature_07_18 <- vector.sabl_spwn_no65immature_07_18[2]
-Lmat50.sabl_spwn_no65immature_07_18 = -(A_glm.sabl_spwn_no65immature_07_18/B_glm.sabl_spwn_no65immature_07_18)
-Lmat50.sabl_spwn_no65immature_07_18
+A_glm.sabl_spwn_no70immature_07_18 <- vector.sabl_spwn_no70immature_07_18[1] 
+B_glm.sabl_spwn_no70immature_07_18 <- vector.sabl_spwn_no70immature_07_18[2]
+Lmat50.sabl_spwn_no70immature_07_18 = -(A_glm.sabl_spwn_no70immature_07_18/B_glm.sabl_spwn_no70immature_07_18)
+Lmat50.sabl_spwn_no70immature_07_18
 
-cor(sabl_f_spwn_no65immature_07_18$length_cm, sabl_f_spwn_no65immature_07_18$macro_maturity)
+cor(sabl_f_spwn_no70immature_07_18$length_cm, sabl_f_spwn_no70immature_07_18$macro_maturity)
 
-sA.sabl_spwn_no65immature_07_18 <- summary (fit.mat.glm.sabl_spwn_no65immature_07_18)$coef[1,2] 
-sB.sabl_spwn_no65immature_07_18 <- summary (fit.mat.glm.sabl_spwn_no65immature_07_18)$coef[2,2]    
-r.sabl_spwn_no65immature_07_18 <-cor(sabl_f_spwn_no65immature_07_18$length_cm, sabl_f_spwn_no65immature_07_18$macro_maturity)
-n.1 <- length(sabl_f_spwn_no65immature_07_18$length_cm)
+sA.sabl_spwn_no70immature_07_18 <- summary (fit.mat.glm.sabl_spwn_no70immature_07_18)$coef[1,2] 
+sB.sabl_spwn_no70immature_07_18 <- summary (fit.mat.glm.sabl_spwn_no70immature_07_18)$coef[2,2]    
+r.sabl_spwn_no70immature_07_18 <-cor(sabl_f_spwn_no70immature_07_18$length_cm, sabl_f_spwn_no70immature_07_18$macro_maturity)
+n.1 <- length(sabl_f_spwn_no70immature_07_18$length_cm)
 
 #Variance estimator
-deltamethod.sabl_spwn_no65immature_07_18 <- ((sA.sabl_spwn_no65immature_07_18^2)/(B_glm.sabl_spwn_no65immature_07_18^2))- ((2*A_glm.sabl_spwn_no65immature_07_18*sA.sabl_spwn_no65immature_07_18*sB.sabl_spwn_no65immature_07_18*r.sabl_spwn_no65immature_07_18)/(B_glm.sabl_spwn_no65immature_07_18^3))+ (((A_glm.sabl_spwn_no65immature_07_18^2)*(sB.sabl_spwn_no65immature_07_18^2))/(B_glm.sabl_spwn_no65immature_07_18^4))
-deltamethod.sabl_spwn_no65immature_07_18
+deltamethod.sabl_spwn_no70immature_07_18 <- ((sA.sabl_spwn_no70immature_07_18^2)/(B_glm.sabl_spwn_no70immature_07_18^2))- ((2*A_glm.sabl_spwn_no70immature_07_18*sA.sabl_spwn_no70immature_07_18*sB.sabl_spwn_no70immature_07_18*r.sabl_spwn_no70immature_07_18)/(B_glm.sabl_spwn_no70immature_07_18^3))+ (((A_glm.sabl_spwn_no70immature_07_18^2)*(sB.sabl_spwn_no70immature_07_18^2))/(B_glm.sabl_spwn_no70immature_07_18^4))
+deltamethod.sabl_spwn_no70immature_07_18
 
 ## 95% Confidence Interval equation
 
-con.sabl_spwn_no65immature_07_18 <- 1.96*(sqrt(deltamethod.sabl_spwn_no65immature_07_18)/sqrt(n.1))
-sabl_spwn_no65immature_07_18_mat = c(Lmat50.sabl_spwn_no65immature_07_18,con.sabl_spwn_no65immature_07_18)
+con.sabl_spwn_no70immature_07_18 <- 1.96*(sqrt(deltamethod.sabl_spwn_no70immature_07_18)/sqrt(n.1))
+sabl_spwn_no70immature_07_18_mat = c(Lmat50.sabl_spwn_no70immature_07_18,con.sabl_spwn_no70immature_07_18)
 ```
-### Spawning season, no 7s no 8s and no fish >= 65 cm that are immature
-```{r fit_glm_sabl_no7no8_no65immature}
+### Spawning season, no 7s no 8s and no fish >= 70 cm that are immature
+```{r fit_glm_sabl_no7no8_no70immature}
 ### 1995-2001 ###
-fit.mat.glm.sabl_spwn_no65immature_no7no8_95_01 <- glm(maturity ~ 1 + length, data <-data.frame(length = sabl_f_spwn_no65immature_no7no8_95_01$length_cm, maturity <- sabl_f_spwn_no65immature_no7no8_95_01$macro_maturity),
+fit.mat.glm.sabl_spwn_no70immature_no7no8_95_01 <- glm(maturity ~ 1 + length, data <-data.frame(length = sabl_f_spwn_no70immature_no7no8_95_01$length_cm, maturity <- sabl_f_spwn_no70immature_no7no8_95_01$macro_maturity),
                                                        family = binomial(link ="logit"))
-vector.sabl_spwn_no65immature_no7no8_95_01 = c(fit.mat.glm.sabl_spwn_no65immature_no7no8_95_01$coefficients)
+vector.sabl_spwn_no70immature_no7no8_95_01 = c(fit.mat.glm.sabl_spwn_no70immature_no7no8_95_01$coefficients)
 
 # A_glm = intercept
 # B_glm = slope
 
-A_glm.sabl_spwn_no65immature_no7no8_95_01 <- vector.sabl_spwn_no65immature_no7no8_95_01[1] 
-B_glm.sabl_spwn_no65immature_no7no8_95_01 <- vector.sabl_spwn_no65immature_no7no8_95_01[2]
-Lmat50.sabl_spwn_no65immature_no7no8_95_01 = -(A_glm.sabl_spwn_no65immature_no7no8_95_01/B_glm.sabl_spwn_no65immature_no7no8_95_01)
-Lmat50.sabl_spwn_no65immature_no7no8_95_01
+A_glm.sabl_spwn_no70immature_no7no8_95_01 <- vector.sabl_spwn_no70immature_no7no8_95_01[1] 
+B_glm.sabl_spwn_no70immature_no7no8_95_01 <- vector.sabl_spwn_no70immature_no7no8_95_01[2]
+Lmat50.sabl_spwn_no70immature_no7no8_95_01 = -(A_glm.sabl_spwn_no70immature_no7no8_95_01/B_glm.sabl_spwn_no70immature_no7no8_95_01)
+Lmat50.sabl_spwn_no70immature_no7no8_95_01
 
-cor(sabl_f_spwn_no65immature_no7no8_95_01$length_cm, sabl_f_spwn_no65immature_no7no8_95_01$macro_maturity)
+cor(sabl_f_spwn_no70immature_no7no8_95_01$length_cm, sabl_f_spwn_no70immature_no7no8_95_01$macro_maturity)
 
-sA.sabl_spwn_no65immature_no7no8_95_01 <- summary (fit.mat.glm.sabl_spwn_no65immature_no7no8_95_01)$coef[1,2] 
-sB.sabl_spwn_no65immature_no7no8_95_01 <- summary (fit.mat.glm.sabl_spwn_no65immature_no7no8_95_01)$coef[2,2]    
-r.sabl_spwn_no65immature_no7no8_95_01 <-cor(sabl_f_spwn_no65immature_no7no8_95_01$length_cm, sabl_f_spwn_no65immature_no7no8_95_01$macro_maturity)
-n.1 <- length(sabl_f_spwn_no65immature_no7no8_95_01$length_cm)
+sA.sabl_spwn_no70immature_no7no8_95_01 <- summary (fit.mat.glm.sabl_spwn_no70immature_no7no8_95_01)$coef[1,2] 
+sB.sabl_spwn_no70immature_no7no8_95_01 <- summary (fit.mat.glm.sabl_spwn_no70immature_no7no8_95_01)$coef[2,2]    
+r.sabl_spwn_no70immature_no7no8_95_01 <-cor(sabl_f_spwn_no70immature_no7no8_95_01$length_cm, sabl_f_spwn_no70immature_no7no8_95_01$macro_maturity)
+n.1 <- length(sabl_f_spwn_no70immature_no7no8_95_01$length_cm)
 
 #Variance estimator
-deltamethod.sabl_spwn_no65immature_no7no8_95_01 <- ((sA.sabl_spwn_no65immature_no7no8_95_01^2)/(B_glm.sabl_spwn_no65immature_no7no8_95_01^2))- ((2*A_glm.sabl_spwn_no65immature_no7no8_95_01*sA.sabl_spwn_no65immature_no7no8_95_01*sB.sabl_spwn_no65immature_no7no8_95_01*r.sabl_spwn_no65immature_no7no8_95_01)/(B_glm.sabl_spwn_no65immature_no7no8_95_01^3))+ (((A_glm.sabl_spwn_no65immature_no7no8_95_01^2)*(sB.sabl_spwn_no65immature_no7no8_95_01^2))/(B_glm.sabl_spwn_no65immature_no7no8_95_01^4))
-deltamethod.sabl_spwn_no65immature_no7no8_95_01
+deltamethod.sabl_spwn_no70immature_no7no8_95_01 <- ((sA.sabl_spwn_no70immature_no7no8_95_01^2)/(B_glm.sabl_spwn_no70immature_no7no8_95_01^2))- ((2*A_glm.sabl_spwn_no70immature_no7no8_95_01*sA.sabl_spwn_no70immature_no7no8_95_01*sB.sabl_spwn_no70immature_no7no8_95_01*r.sabl_spwn_no70immature_no7no8_95_01)/(B_glm.sabl_spwn_no70immature_no7no8_95_01^3))+ (((A_glm.sabl_spwn_no70immature_no7no8_95_01^2)*(sB.sabl_spwn_no70immature_no7no8_95_01^2))/(B_glm.sabl_spwn_no70immature_no7no8_95_01^4))
+deltamethod.sabl_spwn_no70immature_no7no8_95_01
 
 ## 95% Confidence Interval equation
 
-con.sabl_spwn_no65immature_no7no8_95_01 <- 1.96*(sqrt(deltamethod.sabl_spwn_no65immature_no7no8_95_01)/sqrt(n.1))
-sabl_spwn_no65immature_no7no8_95_01_mat = c(Lmat50.sabl_spwn_no65immature_no7no8_95_01,con.sabl_spwn_no65immature_no7no8_95_01)
+con.sabl_spwn_no70immature_no7no8_95_01 <- 1.96*(sqrt(deltamethod.sabl_spwn_no70immature_no7no8_95_01)/sqrt(n.1))
+sabl_spwn_no70immature_no7no8_95_01_mat <- c(Lmat50.sabl_spwn_no70immature_no7no8_95_01,con.sabl_spwn_no70immature_no7no8_95_01)
 
 
 ### 2007-2018 ###
 
-fit.mat.glm.sabl_spwn_no65immature_no7no8_07_18 <- glm(maturity ~ 1 + length, data <-data.frame(length = sabl_f_spwn_no65immature_no7no8_07_18$length_cm, maturity <- sabl_f_spwn_no65immature_no7no8_07_18$macro_maturity),
+fit.mat.glm.sabl_spwn_no70immature_no7no8_07_18 <- glm(maturity ~ 1 + length, data <-data.frame(length = sabl_f_spwn_no70immature_no7no8_07_18$length_cm, maturity <- sabl_f_spwn_no70immature_no7no8_07_18$macro_maturity),
                                                        family = binomial(link ="logit"))
-vector.sabl_spwn_no65immature_no7no8_07_18 = c(fit.mat.glm.sabl_spwn_no65immature_no7no8_07_18$coefficients)
+vector.sabl_spwn_no70immature_no7no8_07_18 = c(fit.mat.glm.sabl_spwn_no70immature_no7no8_07_18$coefficients)
 
 # A_glm = intercept
 # B_glm = slope
 
-A_glm.sabl_spwn_no65immature_no7no8_07_18 <- vector.sabl_spwn_no65immature_no7no8_07_18[1] 
-B_glm.sabl_spwn_no65immature_no7no8_07_18 <- vector.sabl_spwn_no65immature_no7no8_07_18[2]
-Lmat50.sabl_spwn_no65immature_no7no8_07_18 = -(A_glm.sabl_spwn_no65immature_no7no8_07_18/B_glm.sabl_spwn_no65immature_no7no8_07_18)
-Lmat50.sabl_spwn_no65immature_no7no8_07_18
+A_glm.sabl_spwn_no70immature_no7no8_07_18 <- vector.sabl_spwn_no70immature_no7no8_07_18[1] 
+B_glm.sabl_spwn_no70immature_no7no8_07_18 <- vector.sabl_spwn_no70immature_no7no8_07_18[2]
+Lmat50.sabl_spwn_no70immature_no7no8_07_18 = -(A_glm.sabl_spwn_no70immature_no7no8_07_18/B_glm.sabl_spwn_no70immature_no7no8_07_18)
+Lmat50.sabl_spwn_no70immature_no7no8_07_18
 
-cor(sabl_f_spwn_no65immature_no7no8_07_18$length_cm, sabl_f_spwn_no65immature_no7no8_07_18$macro_maturity)
+cor(sabl_f_spwn_no70immature_no7no8_07_18$length_cm, sabl_f_spwn_no70immature_no7no8_07_18$macro_maturity)
 
-sA.sabl_spwn_no65immature_no7no8_07_18 <- summary (fit.mat.glm.sabl_spwn_no65immature_no7no8_07_18)$coef[1,2] 
-sB.sabl_spwn_no65immature_no7no8_07_18 <- summary (fit.mat.glm.sabl_spwn_no65immature_no7no8_07_18)$coef[2,2]    
-r.sabl_spwn_no65immature_no7no8_07_18 <-cor(sabl_f_spwn_no65immature_no7no8_07_18$length_cm, sabl_f_spwn_no65immature_no7no8_07_18$macro_maturity)
-n.1 <- length(sabl_f_spwn_no65immature_no7no8_07_18$length_cm)
+sA.sabl_spwn_no70immature_no7no8_07_18 <- summary (fit.mat.glm.sabl_spwn_no70immature_no7no8_07_18)$coef[1,2] 
+sB.sabl_spwn_no70immature_no7no8_07_18 <- summary (fit.mat.glm.sabl_spwn_no70immature_no7no8_07_18)$coef[2,2]    
+r.sabl_spwn_no70immature_no7no8_07_18 <-cor(sabl_f_spwn_no70immature_no7no8_07_18$length_cm, sabl_f_spwn_no70immature_no7no8_07_18$macro_maturity)
+n.1 <- length(sabl_f_spwn_no70immature_no7no8_07_18$length_cm)
 
 #Variance estimator
-deltamethod.sabl_spwn_no65immature_no7no8_07_18 <- ((sA.sabl_spwn_no65immature_no7no8_07_18^2)/(B_glm.sabl_spwn_no65immature_no7no8_07_18^2))- ((2*A_glm.sabl_spwn_no65immature_no7no8_07_18*sA.sabl_spwn_no65immature_no7no8_07_18*sB.sabl_spwn_no65immature_no7no8_07_18*r.sabl_spwn_no65immature_no7no8_07_18)/(B_glm.sabl_spwn_no65immature_no7no8_07_18^3))+ (((A_glm.sabl_spwn_no65immature_no7no8_07_18^2)*(sB.sabl_spwn_no65immature_no7no8_07_18^2))/(B_glm.sabl_spwn_no65immature_no7no8_07_18^4))
-deltamethod.sabl_spwn_no65immature_no7no8_07_18
+deltamethod.sabl_spwn_no70immature_no7no8_07_18 <- ((sA.sabl_spwn_no70immature_no7no8_07_18^2)/(B_glm.sabl_spwn_no70immature_no7no8_07_18^2))- ((2*A_glm.sabl_spwn_no70immature_no7no8_07_18*sA.sabl_spwn_no70immature_no7no8_07_18*sB.sabl_spwn_no70immature_no7no8_07_18*r.sabl_spwn_no70immature_no7no8_07_18)/(B_glm.sabl_spwn_no70immature_no7no8_07_18^3))+ (((A_glm.sabl_spwn_no70immature_no7no8_07_18^2)*(sB.sabl_spwn_no70immature_no7no8_07_18^2))/(B_glm.sabl_spwn_no70immature_no7no8_07_18^4))
+deltamethod.sabl_spwn_no70immature_no7no8_07_18
 
 ## 95% Confidence Interval equation
 
-con.sabl_spwn_no65immature_no7no8_07_18 <- 1.96*(sqrt(deltamethod.sabl_spwn_no65immature_no7no8_07_18)/sqrt(n.1))
-sabl_spwn_no65immature_no7no8_07_18_mat = c(Lmat50.sabl_spwn_no65immature_no7no8_07_18,con.sabl_spwn_no65immature_no7no8_07_18)
+con.sabl_spwn_no70immature_no7no8_07_18 <- 1.96*(sqrt(deltamethod.sabl_spwn_no70immature_no7no8_07_18)/sqrt(n.1))
+sabl_spwn_no70immature_no7no8_07_18_mat = c(Lmat50.sabl_spwn_no70immature_no7no8_07_18,con.sabl_spwn_no70immature_no7no8_07_18)
+```
+
+
+
+# Store sensitivity analyes in a table (supplemental table)
+
+### Canary rockfish, 1980-1984
+```{r store_canary_1980_1984_sensitivity_results_table}
+### RESULTS ###
+
+cnry_80_84_glm_results <- rbind(cnry_80_84_mat, cnry_no7no8_80_84_mat, cnry_spwn_80_84_mat, cnry_spwn_no7no8_80_84_mat)
+colnames(cnry_80_84_glm_results) = c("Lmat50", "plusminusCI95")
+cnry_80_84_glm_results = as.data.frame(cnry_80_84_glm_results)
+cnry_80_84_glm_results$time_period <- "1980-1984"
+cnry_80_84_glm_results <- rownames_to_column(cnry_80_84_glm_results, "data_processing")
+cnry_80_84_glm_results %>% 
+  mutate(., CI_95 = paste0(round(Lmat50-plusminusCI95,2), "-", round(Lmat50+plusminusCI95,2))) -> cnry_80_84_glm_results
+
+# Here we're adding a column which is the result of pasting the value and then the standard error for each value
+
+# alpha parameter
+cnry_80_84_glm_results$alpha <- c(paste0(round(A_glm.cnry_80_84,2), " (", round(sA.cnry_80_84,2), ")"),
+                                  paste0(round(A_glm.cnry_no7no8_80_84,2), " (", round(sA.cnry_no7no8_80_84,2), ")"),
+                                  paste0(round(A_glm.cnry_spwn_80_84,2), " (", round(sA.cnry_spwn_80_84,2), ")"),
+                                  paste0(round(A_glm.cnry_spwn_no7no8_80_84,2), " (", round(sA.cnry_spwn_no7no8_80_84,2), ")"))
+
+# beta parameter
+cnry_80_84_glm_results$beta <- c(paste0(round(B_glm.cnry_80_84,2), " (", round(sB.cnry_80_84,2), ")"),
+                                  paste0(round(B_glm.cnry_no7no8_80_84,2), " (", round(sB.cnry_no7no8_80_84,2), ")"),
+                                  paste0(round(B_glm.cnry_spwn_80_84,2), " (", round(sB.cnry_spwn_80_84,2), ")"),
+                                  paste0(round(B_glm.cnry_spwn_no7no8_80_84,2), " (", round(sB.cnry_spwn_no7no8_80_84,2), ")"))
+
+# sample size
+cnry_80_84_glm_results$n <- c(nrow(cnry_f_80_84), nrow(cnry_f_no7no8_80_84), nrow(cnry_f_spwn_80_84), nrow(cnry_f_spwn_no7no8_80_84))
+
+
+# round values
+cnry_80_84_glm_results$Lmat50 <- round(cnry_80_84_glm_results$Lmat50, 2)
+cnry_80_84_glm_results$plusminusCI95 <- round(cnry_80_84_glm_results$plusminusCI95, 2)
+
+# add columns for data pre-processing steps
+cnry_80_84_glm_results$resting_stage_removed <- c("No", "Yes", "No", "Yes")
+cnry_80_84_glm_results$spwn_season_iso <- c("No", "No", "Yes", "Yes")
+```
+
+### Canary rockfish, 2010-2018
+
+```{r store_canary_2010_2018_sensitivity_results_table}
+### RESULTS ###
+
+cnry_10_18_glm_results <- rbind(cnry_10_18_mat, cnry_no7no8_10_18_mat, cnry_spwn_10_18_mat, cnry_spwn_no7no8_10_18_mat)
+colnames(cnry_10_18_glm_results) = c("Lmat50", "plusminusCI95")
+cnry_10_18_glm_results = as.data.frame(cnry_10_18_glm_results)
+cnry_10_18_glm_results$time_period <- "2010-2018"
+cnry_10_18_glm_results <- rownames_to_column(cnry_10_18_glm_results, "data_processing")
+cnry_10_18_glm_results %>% 
+  mutate(., CI_95 = paste0(round(Lmat50-plusminusCI95,2), "-", round(Lmat50+plusminusCI95,2))) -> cnry_10_18_glm_results
+
+# Here we're adding a column which is the result of pasting the value and then the standard error for each value
+
+# alpha parameter
+cnry_10_18_glm_results$alpha <- c(paste0(round(A_glm.cnry_10_18,2), " (", round(sA.cnry_10_18,2), ")"),
+                                  paste0(round(A_glm.cnry_no7no8_10_18,2), " (", round(sA.cnry_no7no8_10_18,2), ")"),
+                                  paste0(round(A_glm.cnry_spwn_10_18,2), " (", round(sA.cnry_spwn_10_18,2), ")"),
+                                  paste0(round(A_glm.cnry_spwn_no7no8_10_18,2), " (", round(sA.cnry_spwn_no7no8_10_18,2), ")"))
+
+# beta parameter
+cnry_10_18_glm_results$beta <- c(paste0(round(B_glm.cnry_10_18,2), " (", round(sB.cnry_10_18,2), ")"),
+                                 paste0(round(B_glm.cnry_no7no8_10_18,2), " (", round(sB.cnry_no7no8_10_18,2), ")"),
+                                 paste0(round(B_glm.cnry_spwn_10_18,2), " (", round(sB.cnry_spwn_10_18,2), ")"),
+                                 paste0(round(B_glm.cnry_spwn_no7no8_10_18,2), " (", round(sB.cnry_spwn_no7no8_10_18,2), ")"))
+
+# sample size
+cnry_10_18_glm_results$n <- c(nrow(cnry_f_10_18), nrow(cnry_f_no7no8_10_18), nrow(cnry_f_spwn_10_18), nrow(cnry_f_spwn_no7no8_10_18))
+
+
+# round values
+cnry_10_18_glm_results$Lmat50 <- round(cnry_10_18_glm_results$Lmat50, 2)
+cnry_10_18_glm_results$plusminusCI95 <- round(cnry_10_18_glm_results$plusminusCI95, 2)
+
+# add columns for data pre-processing steps
+cnry_10_18_glm_results$resting_stage_removed <- c("No", "Yes", "No", "Yes")
+cnry_10_18_glm_results$spwn_season_iso <- c("No", "No", "Yes", "Yes")
+```
+
+### Merge canary results and export
+```{r export_cnry_sensitivity_analysis_table}
+cnry_80_84_glm_results %>% 
+  bind_rows(., cnry_10_18_glm_results) -> cnry_hist_sensitivity_table
+
+write.csv(cnry_hist_sensitivity_table, here("tables", "canary_historical_sensitivity_table.csv"), row.names = FALSE)
+```
+
+### Sablefish, 1995-2001
+```{r store_sablefish_1995_2001_sensitivity_results_table}
+### RESULTS ###
+
+sabl_f_95_01_glm_results <- rbind(sabl_f_95_01_mat, sabl_f_no70immature_95_01_mat, sabl_no7no8_no70immature_95_01_mat, sabl_spwn_no70immature_95_01_mat, sabl_spwn_no70immature_no7no8_95_01_mat)
+colnames(sabl_f_95_01_glm_results) = c("Lmat50", "plusminusCI95")
+sabl_f_95_01_glm_results = as.data.frame(sabl_f_95_01_glm_results)
+sabl_f_95_01_glm_results$time_period <- "1995-2001"
+sabl_f_95_01_glm_results <- rownames_to_column(sabl_f_95_01_glm_results, "data_processing")
+sabl_f_95_01_glm_results %>% 
+  mutate(., CI_95 = paste0(round(Lmat50-plusminusCI95,2), "-", round(Lmat50+plusminusCI95,2))) -> sabl_f_95_01_glm_results
+
+# Here we're adding a column which is the result of pasting the value and then the standard error for each value
+
+# alpha parameter
+sabl_f_95_01_glm_results$alpha <- c(paste0(round(A_glm.sabl_f_95_01,2), " (", round(sA.sabl_f_95_01,2), ")"),
+                                  paste0(round(A_glm.sabl_f_no70immature_95_01,2), " (", round(sA.sabl_f_no70immature_95_01,2), ")"),
+                                  paste0(round(A_glm.sabl_no7no8_no70immature_95_01,2), " (", round(sA.sabl_no7no8_no70immature_95_01,2), ")"),
+                                  paste0(round(A_glm.sabl_spwn_no70immature_95_01,2), " (", round(sA.sabl_spwn_no70immature_95_01,2), ")"),
+                                  paste0(round(A_glm.sabl_spwn_no70immature_no7no8_95_01,2), " (", round(sA.sabl_spwn_no70immature_no7no8_95_01,2), ")"))
+
+# beta parameter
+sabl_f_95_01_glm_results$beta <- c(paste0(round(B_glm.sabl_f_95_01,2), " (", round(sB.sabl_f_95_01,2), ")"),
+                                   paste0(round(B_glm.sabl_f_no70immature_95_01,2), " (", round(sB.sabl_f_no70immature_95_01,2), ")"),
+                                 paste0(round(B_glm.sabl_no7no8_no70immature_95_01,2), " (", round(sB.sabl_no7no8_no70immature_95_01,2), ")"),
+                                 paste0(round(B_glm.sabl_spwn_no70immature_95_01,2), " (", round(sB.sabl_spwn_no70immature_95_01,2), ")"),
+                                 paste0(round(B_glm.sabl_spwn_no70immature_no7no8_95_01,2), " (", round(sB.sabl_spwn_no70immature_no7no8_95_01,2), ")"))
+sabl_f_no7no8_no70immature_95_01
+# sample size
+sabl_f_95_01_glm_results$n <- c(nrow(sabl_f_95_01), nrow(sabl_f_no70immature_95_01), nrow(sabl_f_no7no8_no70immature_95_01), nrow(sabl_f_spwn_no70immature_95_01), nrow(sabl_f_spwn_no70immature_no7no8_95_01))
+
+# round values
+sabl_f_95_01_glm_results$Lmat50 <- round(sabl_f_95_01_glm_results$Lmat50, 2)
+sabl_f_95_01_glm_results$plusminusCI95 <- round(sabl_f_95_01_glm_results$plusminusCI95, 2)
+
+# add columns for data pre-processing steps
+sabl_f_95_01_glm_results$resting_stage_removed <- c("No", "No", "Yes", "No", "Yes")
+sabl_f_95_01_glm_results$spwn_season_iso <- c("No", "No", "No", "Yes", "Yes")
+sabl_f_95_01_glm_results$immature_70cm_plus_removed <- c("No", "Yes", "Yes", "Yes", "Yes")
+```
+
+
+### Sablefish, 2007-2018
+```{r store_sablefish_2007_2018_sensitivity_results_table}
+### RESULTS ###
+
+sabl_f_07_18_glm_results <- rbind(sabl_f_07_18_mat, sabl_f_no70immature_07_18_mat, sabl_no7no8_no70immature_07_18_mat, sabl_spwn_no70immature_07_18_mat, sabl_spwn_no70immature_no7no8_07_18_mat)
+colnames(sabl_f_07_18_glm_results) = c("Lmat50", "plusminusCI95")
+sabl_f_07_18_glm_results = as.data.frame(sabl_f_07_18_glm_results)
+sabl_f_07_18_glm_results$time_period <- "1995-2001"
+sabl_f_07_18_glm_results <- rownames_to_column(sabl_f_07_18_glm_results, "data_processing")
+sabl_f_07_18_glm_results %>% 
+  mutate(., CI_95 = paste0(round(Lmat50-plusminusCI95,2), "-", round(Lmat50+plusminusCI95,2))) -> sabl_f_07_18_glm_results
+
+# Here we're adding a column which is the result of pasting the value and then the standard error for each value
+
+# alpha parameter
+sabl_f_07_18_glm_results$alpha <- c(paste0(round(A_glm.sabl_f_07_18,2), " (", round(sA.sabl_f_07_18,2), ")"),
+                                    paste0(round(A_glm.sabl_f_no70immature_07_18,2), " (", round(sA.sabl_f_no70immature_07_18,2), ")"),
+                                    paste0(round(A_glm.sabl_no7no8_no70immature_07_18,2), " (", round(sA.sabl_no7no8_no70immature_07_18,2), ")"),
+                                    paste0(round(A_glm.sabl_spwn_no70immature_07_18,2), " (", round(sA.sabl_spwn_no70immature_07_18,2), ")"),
+                                    paste0(round(A_glm.sabl_spwn_no70immature_no7no8_07_18,2), " (", round(sA.sabl_spwn_no70immature_no7no8_07_18,2), ")"))
+
+# beta parameter
+sabl_f_07_18_glm_results$beta <- c(paste0(round(B_glm.sabl_f_07_18,2), " (", round(sB.sabl_f_07_18,2), ")"),
+                                   paste0(round(B_glm.sabl_f_no70immature_07_18,2), " (", round(sB.sabl_f_no70immature_07_18,2), ")"),
+                                   paste0(round(B_glm.sabl_no7no8_no70immature_07_18,2), " (", round(sB.sabl_no7no8_no70immature_07_18,2), ")"),
+                                   paste0(round(B_glm.sabl_spwn_no70immature_07_18,2), " (", round(sB.sabl_spwn_no70immature_07_18,2), ")"),
+                                   paste0(round(B_glm.sabl_spwn_no70immature_no7no8_07_18,2), " (", round(sB.sabl_spwn_no70immature_no7no8_07_18,2), ")"))
+
+sabl_f_07_18_glm_results$n <- c(nrow(sabl_f_07_18), nrow(sabl_f_no70immature_07_18), nrow(sabl_f_no7no8_no70immature_07_18), nrow(sabl_f_spwn_no70immature_07_18), nrow(sabl_f_spwn_no70immature_no7no8_07_18))
+
+
+# round values
+sabl_f_07_18_glm_results$Lmat50 <- round(sabl_f_07_18_glm_results$Lmat50, 2)
+sabl_f_07_18_glm_results$plusminusCI95 <- round(sabl_f_07_18_glm_results$plusminusCI95, 2)
+
+# add columns for data pre-processing steps
+sabl_f_07_18_glm_results$resting_stage_removed <- c("No", "No", "Yes", "No", "Yes")
+sabl_f_07_18_glm_results$spwn_season_iso <- c("No", "No", "No", "Yes", "Yes")
+sabl_f_07_18_glm_results$immature_70cm_plus_removed <- c("No", "Yes", "Yes", "Yes", "Yes")
+```
+
+
+### Merge sablefish results and export
+```{r export_sabl_sensitivity_analysis_table}
+sabl_f_95_01_glm_results %>% 
+  bind_rows(., sabl_f_07_18_glm_results) -> sabl_hist_sensitivity_table
+
+write.csv(sabl_hist_sensitivity_table, here("tables", "sablefish_historical_sensitivity_table.csv"), row.names = FALSE)
 ```
 
 # Plot - each individually
@@ -1792,55 +1985,55 @@ dev.off()
 ```
 
 
-### All seasons, all codes, no immature fish >= 65 cm
-```{r get_parameters_sabl_allcodes_allseasons_no65immature}
+### All seasons, all codes, no immature fish >= 70 cm
+```{r get_parameters_sabl_allcodes_allseasons_no70immature}
 # 1995-2001 # 
-bin_sabl_f_no65immature_95_01 <- sabl_prop_mature_f_no65immature_95_01$length_cm
-prop_sabl_f_no65immature_95_01 <- sabl_prop_mature_f_no65immature_95_01$prop_mature
-n_sabl_f_no65immature_95_01 <- sabl_prop_mature_f_no65immature_95_01$n
-fit.mat.glm.sabl_f_no65immature_95_01[1]
-df.fit.mat.glm.sabl_f_no65immature_95_01 = as.data.frame(fit.mat.glm.sabl_f_no65immature_95_01[1])
-A_glm.sabl_f_no65immature_95_01 = df.fit.mat.glm.sabl_f_no65immature_95_01$coefficients[1]
-B_glm.sabl_f_no65immature_95_01 = df.fit.mat.glm.sabl_f_no65immature_95_01$coefficients[2]
+bin_sabl_f_no70immature_95_01 <- sabl_prop_mature_f_no70immature_95_01$length_cm
+prop_sabl_f_no70immature_95_01 <- sabl_prop_mature_f_no70immature_95_01$prop_mature
+n_sabl_f_no70immature_95_01 <- sabl_prop_mature_f_no70immature_95_01$n
+fit.mat.glm.sabl_f_no70immature_95_01[1]
+df.fit.mat.glm.sabl_f_no70immature_95_01 = as.data.frame(fit.mat.glm.sabl_f_no70immature_95_01[1])
+A_glm.sabl_f_no70immature_95_01 = df.fit.mat.glm.sabl_f_no70immature_95_01$coefficients[1]
+B_glm.sabl_f_no70immature_95_01 = df.fit.mat.glm.sabl_f_no70immature_95_01$coefficients[2]
 
 # 2007-2018 # 
-bin_sabl_f_no65immature_07_18 <- sabl_prop_mature_f_no65immature_07_18$length_cm
-prop_sabl_f_no65immature_07_18 <- sabl_prop_mature_f_no65immature_07_18$prop_mature
-n_sabl_f_no65immature_07_18 <- sabl_prop_mature_f_no65immature_07_18$n
-fit.mat.glm.sabl_f_no65immature_07_18[1]
-df.fit.mat.glm.sabl_f_no65immature_07_18 = as.data.frame(fit.mat.glm.sabl_f_no65immature_07_18[1])
-A_glm.sabl_f_no65immature_07_18 = df.fit.mat.glm.sabl_f_no65immature_07_18$coefficients[1]
-B_glm.sabl_f_no65immature_07_18 = df.fit.mat.glm.sabl_f_no65immature_07_18$coefficients[2]
+bin_sabl_f_no70immature_07_18 <- sabl_prop_mature_f_no70immature_07_18$length_cm
+prop_sabl_f_no70immature_07_18 <- sabl_prop_mature_f_no70immature_07_18$prop_mature
+n_sabl_f_no70immature_07_18 <- sabl_prop_mature_f_no70immature_07_18$n
+fit.mat.glm.sabl_f_no70immature_07_18[1]
+df.fit.mat.glm.sabl_f_no70immature_07_18 = as.data.frame(fit.mat.glm.sabl_f_no70immature_07_18[1])
+A_glm.sabl_f_no70immature_07_18 = df.fit.mat.glm.sabl_f_no70immature_07_18$coefficients[1]
+B_glm.sabl_f_no70immature_07_18 = df.fit.mat.glm.sabl_f_no70immature_07_18$coefficients[2]
 ```
 
 ```{r plot_sabl_allcodes_comparisons}
 
 ### CREATE PLOT
 setEPS()
-postscript(here("figures", "historical_sensitivity_analysis", "sabl_allseasons_allcodes_no65immature_histcomp.eps"), height = 8, width = 8)
+postscript(here("figures", "historical_sensitivity_analysis", "sabl_allseasons_allcodes_no70immature_histcomp.eps"), height = 8, width = 8)
 
 par(mfrow=c(1,1))
 par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
 plot(0, type ='n', xlim=c(30,85),ylim=c(-0.01,1.1),xlab="Length (cm)",ylab="Proportion mature", cex.lab = 1.6, cex.axis = 1.3)
 
 # points(x = bin_m.2, y = prop_m.2,cex=0.7*sqrt(n_m.2), pch=16, col = rgb(0,0,1,0.2))
-points(x = bin_sabl_f_no65immature_95_01, y = prop_sabl_f_no65immature_95_01,cex=0.7*sqrt(n_sabl_f_no65immature_95_01), pch=16, col = "#f4a582")
-points(x = bin_sabl_f_no65immature_07_18, y = prop_sabl_f_no65immature_07_18,cex=0.7*sqrt(n_sabl_f_no65immature_07_18), pch=16, col = "#92c5de")
+points(x = bin_sabl_f_no70immature_95_01, y = prop_sabl_f_no70immature_95_01,cex=0.7*sqrt(n_sabl_f_no70immature_95_01), pch=16, col = "#f4a582")
+points(x = bin_sabl_f_no70immature_07_18, y = prop_sabl_f_no70immature_07_18,cex=0.7*sqrt(n_sabl_f_no70immature_07_18), pch=16, col = "#92c5de")
 
 
-lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no65immature_95_01+(B_glm.sabl_f_no65immature_95_01*(30:83)))))), type = "l", col='#b2182b', pch = 19, lty =1,lwd = 3)####Time Period 2#####
-lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no65immature_07_18+(B_glm.sabl_f_no65immature_07_18*(30:83)))))), type = "l", col='#2166ac', pch = 19, lty =1,lwd = 3)####Time Period 2#####
+lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no70immature_95_01+(B_glm.sabl_f_no70immature_95_01*(30:83)))))), type = "l", col='#b2182b', pch = 19, lty =1,lwd = 3)####Time Period 2#####
+lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no70immature_07_18+(B_glm.sabl_f_no70immature_07_18*(30:83)))))), type = "l", col='#2166ac', pch = 19, lty =1,lwd = 3)####Time Period 2#####
 
 # GLM Confidence Bands #
 
 plotdat <- data.frame(length=(30:83))
-predat_sabl_f_no65immature_95_01 <- predict(fit.mat.glm.sabl_f_no65immature_95_01,newdata=plotdat, se.fit=TRUE)
-with(predat_sabl_f_no65immature_95_01, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#b2182b"))
-with(predat_sabl_f_no65immature_95_01, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#b2182b"))
+predat_sabl_f_no70immature_95_01 <- predict(fit.mat.glm.sabl_f_no70immature_95_01,newdata=plotdat, se.fit=TRUE)
+with(predat_sabl_f_no70immature_95_01, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#b2182b"))
+with(predat_sabl_f_no70immature_95_01, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#b2182b"))
 
-predat_sabl_f_no65immature_07_18 <- predict(fit.mat.glm.sabl_f_no65immature_07_18,newdata=plotdat, se.fit=TRUE)
-with(predat_sabl_f_no65immature_07_18, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#2166ac"))
-with(predat_sabl_f_no65immature_07_18, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#2166ac"))
+predat_sabl_f_no70immature_07_18 <- predict(fit.mat.glm.sabl_f_no70immature_07_18,newdata=plotdat, se.fit=TRUE)
+with(predat_sabl_f_no70immature_07_18, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#2166ac"))
+with(predat_sabl_f_no70immature_07_18, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#2166ac"))
 
 
 #Legend
@@ -1869,55 +2062,55 @@ dev.off()
 
 
 
-### All seasons, no 7s no 8s and no fish >= 65 cm that are immature
-```{r get_parameters_sabl_no7no8_allseasons_no7no8_no65immature}
+### All seasons, no 7s no 8s and no fish >= 70 cm that are immature
+```{r get_parameters_sabl_no7no8_allseasons_no7no8_no70immature}
 # 1995-2001 # 
-bin_sabl_f_no7no8_no65immature_95_01 <- sabl_prop_mature_f_no7no8_no65immature_95_01$length_cm
-prop_sabl_f_no7no8_no65immature_95_01 <- sabl_prop_mature_f_no7no8_no65immature_95_01$prop_mature
-n_sabl_f_no7no8_no65immature_95_01 <- sabl_prop_mature_f_no7no8_no65immature_95_01$n
-fit.mat.glm.sabl_no7no8_no65immature_95_01[1]
-df.fit.mat.glm.sabl_no7no8_no65immature_95_01 = as.data.frame(fit.mat.glm.sabl_no7no8_no65immature_95_01[1])
-A_glm.sabl_f_no7no8_no65immature_95_01 = df.fit.mat.glm.sabl_no7no8_no65immature_95_01$coefficients[1]
-B_glm.sabl_f_no7no8_no65immature_95_01 = df.fit.mat.glm.sabl_no7no8_no65immature_95_01$coefficients[2]
+bin_sabl_f_no7no8_no70immature_95_01 <- sabl_prop_mature_f_no7no8_no70immature_95_01$length_cm
+prop_sabl_f_no7no8_no70immature_95_01 <- sabl_prop_mature_f_no7no8_no70immature_95_01$prop_mature
+n_sabl_f_no7no8_no70immature_95_01 <- sabl_prop_mature_f_no7no8_no70immature_95_01$n
+fit.mat.glm.sabl_no7no8_no70immature_95_01[1]
+df.fit.mat.glm.sabl_no7no8_no70immature_95_01 = as.data.frame(fit.mat.glm.sabl_no7no8_no70immature_95_01[1])
+A_glm.sabl_f_no7no8_no70immature_95_01 = df.fit.mat.glm.sabl_no7no8_no70immature_95_01$coefficients[1]
+B_glm.sabl_f_no7no8_no70immature_95_01 = df.fit.mat.glm.sabl_no7no8_no70immature_95_01$coefficients[2]
 
 # 2007-2018 # 
-bin_sabl_f_no7no8_no65immature_07_18 <- sabl_prop_mature_f_no7no8_no65immature_07_18$length_cm
-prop_sabl_f_no7no8_no65immature_07_18 <- sabl_prop_mature_f_no7no8_no65immature_07_18$prop_mature
-n_sabl_f_no7no8_no65immature_07_18 <- sabl_prop_mature_f_no7no8_no65immature_07_18$n
-fit.mat.glm.sabl_no7no8_no65immature_07_18[1]
-df.fit.mat.glm.sabl_no7no8_no65immature_07_18 = as.data.frame(fit.mat.glm.sabl_no7no8_no65immature_07_18[1])
-A_glm.sabl_f_no7no8_no65immature_07_18 = df.fit.mat.glm.sabl_no7no8_no65immature_07_18$coefficients[1]
-B_glm.sabl_f_no7no8_no65immature_07_18 = df.fit.mat.glm.sabl_no7no8_no65immature_07_18$coefficients[2]
+bin_sabl_f_no7no8_no70immature_07_18 <- sabl_prop_mature_f_no7no8_no70immature_07_18$length_cm
+prop_sabl_f_no7no8_no70immature_07_18 <- sabl_prop_mature_f_no7no8_no70immature_07_18$prop_mature
+n_sabl_f_no7no8_no70immature_07_18 <- sabl_prop_mature_f_no7no8_no70immature_07_18$n
+fit.mat.glm.sabl_no7no8_no70immature_07_18[1]
+df.fit.mat.glm.sabl_no7no8_no70immature_07_18 = as.data.frame(fit.mat.glm.sabl_no7no8_no70immature_07_18[1])
+A_glm.sabl_f_no7no8_no70immature_07_18 = df.fit.mat.glm.sabl_no7no8_no70immature_07_18$coefficients[1]
+B_glm.sabl_f_no7no8_no70immature_07_18 = df.fit.mat.glm.sabl_no7no8_no70immature_07_18$coefficients[2]
 ```
 
 ```{r plot_sabl_allseasons_no7no8_comparisons}
 
 ### CREATE PLOT
 setEPS()
-postscript(here("figures", "historical_sensitivity_analysis", "sabl_allseasons_no7no8_no65immature_histcomp.eps"), height = 8, width = 8)
+postscript(here("figures", "historical_sensitivity_analysis", "sabl_allseasons_no7no8_no70immature_histcomp.eps"), height = 8, width = 8)
 
 par(mfrow=c(1,1))
 par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
 plot(0, type ='n', xlim=c(30,85),ylim=c(-0.01,1.1),xlab="Length (cm)",ylab="Proportion mature", cex.lab = 1.6, cex.axis = 1.3)
 
 # points(x = bin_m.2, y = prop_m.2,cex=0.7*sqrt(n_m.2), pch=16, col = rgb(0,0,1,0.2))
-points(x = bin_sabl_f_no7no8_no65immature_95_01, y = prop_sabl_f_no7no8_no65immature_95_01,cex=0.7*sqrt(n_sabl_f_no7no8_no65immature_95_01), pch=16, col = "#f4a582")
-points(x = bin_sabl_f_no7no8_no65immature_07_18, y = prop_sabl_f_no7no8_no65immature_07_18,cex=0.7*sqrt(n_sabl_f_no7no8_no65immature_07_18), pch=16, col = "#92c5de")
+points(x = bin_sabl_f_no7no8_no70immature_95_01, y = prop_sabl_f_no7no8_no70immature_95_01,cex=0.7*sqrt(n_sabl_f_no7no8_no70immature_95_01), pch=16, col = "#f4a582")
+points(x = bin_sabl_f_no7no8_no70immature_07_18, y = prop_sabl_f_no7no8_no70immature_07_18,cex=0.7*sqrt(n_sabl_f_no7no8_no70immature_07_18), pch=16, col = "#92c5de")
 
 
-lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no7no8_no65immature_95_01+(B_glm.sabl_f_no7no8_no65immature_95_01*(30:83)))))), type = "l", col='#b2182b', pch = 19, lty =1,lwd = 3)####Time Period 2#####
-lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no7no8_no65immature_07_18+(B_glm.sabl_f_no7no8_no65immature_07_18*(30:83)))))), type = "l", col='#2166ac', pch = 19, lty =1,lwd = 3)####Time Period 2#####
+lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no7no8_no70immature_95_01+(B_glm.sabl_f_no7no8_no70immature_95_01*(30:83)))))), type = "l", col='#b2182b', pch = 19, lty =1,lwd = 3)####Time Period 2#####
+lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no7no8_no70immature_07_18+(B_glm.sabl_f_no7no8_no70immature_07_18*(30:83)))))), type = "l", col='#2166ac', pch = 19, lty =1,lwd = 3)####Time Period 2#####
 
 # GLM Confidence Bands #
 
 plotdat <- data.frame(length=(30:83))
-predat_sabl_f_no7no8_no65immature_95_01 <- predict(fit.mat.glm.sabl_no7no8_no65immature_95_01,newdata=plotdat, se.fit=TRUE)
-with(predat_sabl_f_no7no8_no65immature_95_01, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#b2182b"))
-with(predat_sabl_f_no7no8_no65immature_95_01, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#b2182b"))
+predat_sabl_f_no7no8_no70immature_95_01 <- predict(fit.mat.glm.sabl_no7no8_no70immature_95_01,newdata=plotdat, se.fit=TRUE)
+with(predat_sabl_f_no7no8_no70immature_95_01, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#b2182b"))
+with(predat_sabl_f_no7no8_no70immature_95_01, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#b2182b"))
 
-predat_sabl_f_no7no8_no65immature_07_18 <- predict(fit.mat.glm.sabl_no7no8_no65immature_07_18,newdata=plotdat, se.fit=TRUE)
-with(predat_sabl_f_no7no8_no65immature_07_18, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#2166ac"))
-with(predat_sabl_f_no7no8_no65immature_07_18, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#2166ac"))
+predat_sabl_f_no7no8_no70immature_07_18 <- predict(fit.mat.glm.sabl_no7no8_no70immature_07_18,newdata=plotdat, se.fit=TRUE)
+with(predat_sabl_f_no7no8_no70immature_07_18, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#2166ac"))
+with(predat_sabl_f_no7no8_no70immature_07_18, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#2166ac"))
 
 
 #Legend
@@ -1947,55 +2140,55 @@ dev.off()
 
 
 
-### Spawning season, all codes, no immature fish >= 65 cm
-```{r get_parameters_sabl_allcodes_spwn_no65immature}
+### Spawning season, all codes, no immature fish >= 70 cm
+```{r get_parameters_sabl_allcodes_spwn_no70immature}
 # 1995-2001 # 
-bin_sabl_f_spwn_no65immature_95_01 <- sabl_prop_mature_f_spwn_no65immature_95_01$length_cm
-prop_sabl_f_spwn_no65immature_95_01 <- sabl_prop_mature_f_spwn_no65immature_95_01$prop_mature
-n_sabl_f_spwn_no65immature_95_01 <- sabl_prop_mature_f_spwn_no65immature_95_01$n
-fit.mat.glm.sabl_spwn_no65immature_95_01[1]
-df.fit.mat.glm.sabl_spwn_no65immature_95_01 = as.data.frame(fit.mat.glm.sabl_spwn_no65immature_95_01[1])
-A_glm.sabl_f_spwn_no65immature_95_01 = df.fit.mat.glm.sabl_spwn_no65immature_95_01$coefficients[1]
-B_glm.sabl_f_spwn_no65immature_95_01 = df.fit.mat.glm.sabl_spwn_no65immature_95_01$coefficients[2]
+bin_sabl_f_spwn_no70immature_95_01 <- sabl_prop_mature_f_spwn_no70immature_95_01$length_cm
+prop_sabl_f_spwn_no70immature_95_01 <- sabl_prop_mature_f_spwn_no70immature_95_01$prop_mature
+n_sabl_f_spwn_no70immature_95_01 <- sabl_prop_mature_f_spwn_no70immature_95_01$n
+fit.mat.glm.sabl_spwn_no70immature_95_01[1]
+df.fit.mat.glm.sabl_spwn_no70immature_95_01 = as.data.frame(fit.mat.glm.sabl_spwn_no70immature_95_01[1])
+A_glm.sabl_f_spwn_no70immature_95_01 = df.fit.mat.glm.sabl_spwn_no70immature_95_01$coefficients[1]
+B_glm.sabl_f_spwn_no70immature_95_01 = df.fit.mat.glm.sabl_spwn_no70immature_95_01$coefficients[2]
 
 # 2007-2018 # 
-bin_sabl_f_spwn_no65immature_07_18 <- sabl_prop_mature_f_spwn_no65immature_07_18$length_cm
-prop_sabl_f_spwn_no65immature_07_18 <- sabl_prop_mature_f_spwn_no65immature_07_18$prop_mature
-n_sabl_f_spwn_no65immature_07_18 <- sabl_prop_mature_f_spwn_no65immature_07_18$n
-fit.mat.glm.sabl_spwn_no65immature_07_18[1]
-df.fit.mat.glm.sabl_spwn_no65immature_07_18 = as.data.frame(fit.mat.glm.sabl_spwn_no65immature_07_18[1])
-A_glm.sabl_f_spwn_no65immature_07_18 = df.fit.mat.glm.sabl_spwn_no65immature_07_18$coefficients[1]
-B_glm.sabl_f_spwn_no65immature_07_18 = df.fit.mat.glm.sabl_spwn_no65immature_07_18$coefficients[2]
+bin_sabl_f_spwn_no70immature_07_18 <- sabl_prop_mature_f_spwn_no70immature_07_18$length_cm
+prop_sabl_f_spwn_no70immature_07_18 <- sabl_prop_mature_f_spwn_no70immature_07_18$prop_mature
+n_sabl_f_spwn_no70immature_07_18 <- sabl_prop_mature_f_spwn_no70immature_07_18$n
+fit.mat.glm.sabl_spwn_no70immature_07_18[1]
+df.fit.mat.glm.sabl_spwn_no70immature_07_18 = as.data.frame(fit.mat.glm.sabl_spwn_no70immature_07_18[1])
+A_glm.sabl_f_spwn_no70immature_07_18 = df.fit.mat.glm.sabl_spwn_no70immature_07_18$coefficients[1]
+B_glm.sabl_f_spwn_no70immature_07_18 = df.fit.mat.glm.sabl_spwn_no70immature_07_18$coefficients[2]
 ```
 
 ```{r plot_sabl_allcodes_comparisons}
 
 ### CREATE PLOT
 setEPS()
-postscript(here("figures", "historical_sensitivity_analysis", "sabl_allseasons_allcodes_spwn_no65immature_histcomp.eps"), height = 8, width = 8)
+postscript(here("figures", "historical_sensitivity_analysis", "sabl_allseasons_allcodes_spwn_no70immature_histcomp.eps"), height = 8, width = 8)
 
 par(mfrow=c(1,1))
 par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
 plot(0, type ='n', xlim=c(30,85),ylim=c(-0.01,1.1),xlab="Length (cm)",ylab="Proportion mature", cex.lab = 1.6, cex.axis = 1.3)
 
 # points(x = bin_m.2, y = prop_m.2,cex=0.7*sqrt(n_m.2), pch=16, col = rgb(0,0,1,0.2))
-points(x = bin_sabl_f_spwn_no65immature_95_01, y = prop_sabl_f_spwn_no65immature_95_01,cex=0.7*sqrt(n_sabl_f_spwn_no65immature_95_01), pch=16, col = "#f4a582")
-points(x = bin_sabl_f_spwn_no65immature_07_18, y = prop_sabl_f_spwn_no65immature_07_18,cex=0.7*sqrt(n_sabl_f_spwn_no65immature_07_18), pch=16, col = "#92c5de")
+points(x = bin_sabl_f_spwn_no70immature_95_01, y = prop_sabl_f_spwn_no70immature_95_01,cex=0.7*sqrt(n_sabl_f_spwn_no70immature_95_01), pch=16, col = "#f4a582")
+points(x = bin_sabl_f_spwn_no70immature_07_18, y = prop_sabl_f_spwn_no70immature_07_18,cex=0.7*sqrt(n_sabl_f_spwn_no70immature_07_18), pch=16, col = "#92c5de")
 
 
-lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_spwn_no65immature_95_01+(B_glm.sabl_f_spwn_no65immature_95_01*(30:83)))))), type = "l", col='#b2182b', pch = 19, lty =1,lwd = 3)####Time Period 2#####
-lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_spwn_no65immature_07_18+(B_glm.sabl_f_spwn_no65immature_07_18*(30:83)))))), type = "l", col='#2166ac', pch = 19, lty =1,lwd = 3)####Time Period 2#####
+lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_spwn_no70immature_95_01+(B_glm.sabl_f_spwn_no70immature_95_01*(30:83)))))), type = "l", col='#b2182b', pch = 19, lty =1,lwd = 3)####Time Period 2#####
+lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_spwn_no70immature_07_18+(B_glm.sabl_f_spwn_no70immature_07_18*(30:83)))))), type = "l", col='#2166ac', pch = 19, lty =1,lwd = 3)####Time Period 2#####
 
 # GLM Confidence Bands #
 
 plotdat <- data.frame(length=(30:83))
-predat_sabl_f_spwn_no65immature_95_01 <- predict(fit.mat.glm.sabl_spwn_no65immature_95_01,newdata=plotdat, se.fit=TRUE)
-with(predat_sabl_f_spwn_no65immature_95_01, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#b2182b"))
-with(predat_sabl_f_spwn_no65immature_95_01, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#b2182b"))
+predat_sabl_f_spwn_no70immature_95_01 <- predict(fit.mat.glm.sabl_spwn_no70immature_95_01,newdata=plotdat, se.fit=TRUE)
+with(predat_sabl_f_spwn_no70immature_95_01, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#b2182b"))
+with(predat_sabl_f_spwn_no70immature_95_01, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#b2182b"))
 
-predat_sabl_f_spwn_no65immature_07_18 <- predict(fit.mat.glm.sabl_spwn_no65immature_07_18,newdata=plotdat, se.fit=TRUE)
-with(predat_sabl_f_spwn_no65immature_07_18, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#2166ac"))
-with(predat_sabl_f_spwn_no65immature_07_18, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#2166ac"))
+predat_sabl_f_spwn_no70immature_07_18 <- predict(fit.mat.glm.sabl_spwn_no70immature_07_18,newdata=plotdat, se.fit=TRUE)
+with(predat_sabl_f_spwn_no70immature_07_18, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#2166ac"))
+with(predat_sabl_f_spwn_no70immature_07_18, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#2166ac"))
 
 
 #Legend
@@ -2027,55 +2220,55 @@ dev.off()
 
 
 
-### FIG 3: Spawning season, no 7s no 8s and no fish >= 65 cm that are immature
-```{r get_parameters_sabl_no7no8_spwn_no65immature}
+### FIG 3: Spawning season, no 7s no 8s and no fish >= 70 cm that are immature
+```{r get_parameters_sabl_no7no8_spwn_no70immature}
 # 1995-2001 # 
-bin_sabl_f_no7no8_spwn_no65immature_95_01 <- sabl_prop_mature_f_spwn_no65immature_no7no8_95_01$length_cm
-prop_sabl_f_no7no8_spwn_no65immature_95_01 <- sabl_prop_mature_f_spwn_no65immature_no7no8_95_01$prop_mature
-n_sabl_f_no7no8_spwn_no65immature_95_01 <- sabl_prop_mature_f_spwn_no65immature_no7no8_95_01$n
-fit.mat.glm.sabl_spwn_no65immature_no7no8_95_01[1]
-df.fit.mat.glm.sabl_spwn_no65immature_no7no8_95_01 = as.data.frame(fit.mat.glm.sabl_spwn_no65immature_no7no8_95_01[1])
-A_glm.sabl_f_no7no8_spwn_no65immature_95_01 = df.fit.mat.glm.sabl_spwn_no65immature_no7no8_95_01$coefficients[1]
-B_glm.sabl_f_no7no8_spwn_no65immature_95_01 = df.fit.mat.glm.sabl_spwn_no65immature_no7no8_95_01$coefficients[2]
+bin_sabl_f_no7no8_spwn_no70immature_95_01 <- sabl_prop_mature_f_spwn_no70immature_no7no8_95_01$length_cm
+prop_sabl_f_no7no8_spwn_no70immature_95_01 <- sabl_prop_mature_f_spwn_no70immature_no7no8_95_01$prop_mature
+n_sabl_f_no7no8_spwn_no70immature_95_01 <- sabl_prop_mature_f_spwn_no70immature_no7no8_95_01$n
+fit.mat.glm.sabl_spwn_no70immature_no7no8_95_01[1]
+df.fit.mat.glm.sabl_spwn_no70immature_no7no8_95_01 = as.data.frame(fit.mat.glm.sabl_spwn_no70immature_no7no8_95_01[1])
+A_glm.sabl_f_no7no8_spwn_no70immature_95_01 = df.fit.mat.glm.sabl_spwn_no70immature_no7no8_95_01$coefficients[1]
+B_glm.sabl_f_no7no8_spwn_no70immature_95_01 = df.fit.mat.glm.sabl_spwn_no70immature_no7no8_95_01$coefficients[2]
 
 # 2007-2018 # 
-bin_sabl_f_no7no8_spwn_no65immature_07_18 <- sabl_prop_mature_f_spwn_no65immature_no7no8_07_18$length_cm
-prop_sabl_f_no7no8_spwn_no65immature_07_18 <- sabl_prop_mature_f_spwn_no65immature_no7no8_07_18$prop_mature
-n_sabl_f_no7no8_spwn_no65immature_07_18 <- sabl_prop_mature_f_spwn_no65immature_no7no8_07_18$n
-fit.mat.glm.sabl_spwn_no65immature_no7no8_07_18[1]
-df.fit.mat.glm.sabl_spwn_no65immature_no7no8_07_18 = as.data.frame(fit.mat.glm.sabl_spwn_no65immature_no7no8_07_18[1])
-A_glm.sabl_f_no7no8_spwn_no65immature_07_18 = df.fit.mat.glm.sabl_spwn_no65immature_no7no8_07_18$coefficients[1]
-B_glm.sabl_f_no7no8_spwn_no65immature_07_18 = df.fit.mat.glm.sabl_spwn_no65immature_no7no8_07_18$coefficients[2]
+bin_sabl_f_no7no8_spwn_no70immature_07_18 <- sabl_prop_mature_f_spwn_no70immature_no7no8_07_18$length_cm
+prop_sabl_f_no7no8_spwn_no70immature_07_18 <- sabl_prop_mature_f_spwn_no70immature_no7no8_07_18$prop_mature
+n_sabl_f_no7no8_spwn_no70immature_07_18 <- sabl_prop_mature_f_spwn_no70immature_no7no8_07_18$n
+fit.mat.glm.sabl_spwn_no70immature_no7no8_07_18[1]
+df.fit.mat.glm.sabl_spwn_no70immature_no7no8_07_18 = as.data.frame(fit.mat.glm.sabl_spwn_no70immature_no7no8_07_18[1])
+A_glm.sabl_f_no7no8_spwn_no70immature_07_18 = df.fit.mat.glm.sabl_spwn_no70immature_no7no8_07_18$coefficients[1]
+B_glm.sabl_f_no7no8_spwn_no70immature_07_18 = df.fit.mat.glm.sabl_spwn_no70immature_no7no8_07_18$coefficients[2]
 ```
 
 ```{r plot_sabl_allseasons_no7no8_comparisons}
 
 ### CREATE PLOT
 setEPS()
-postscript(here("figures", "historical_sensitivity_analysis", "sabl_no7no8_spwn_no65immature_histcomp.eps"), height = 8, width = 8)
+postscript(here("figures", "historical_sensitivity_analysis", "sabl_no7no8_spwn_no70immature_histcomp.eps"), height = 8, width = 8)
 
 par(mfrow=c(1,1))
 par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
 plot(0, type ='n', xlim=c(30,85),ylim=c(-0.01,1.1),xlab="Length (cm)",ylab="Proportion mature", cex.lab = 1.6, cex.axis = 1.3)
 
 # points(x = bin_m.2, y = prop_m.2,cex=0.7*sqrt(n_m.2), pch=16, col = rgb(0,0,1,0.2))
-points(x = bin_sabl_f_no7no8_spwn_no65immature_95_01, y = prop_sabl_f_no7no8_spwn_no65immature_95_01,cex=0.7*sqrt(n_sabl_f_no7no8_spwn_no65immature_95_01), pch=16, col = "#f4a582")
-points(x = bin_sabl_f_no7no8_spwn_no65immature_07_18, y = prop_sabl_f_no7no8_spwn_no65immature_07_18,cex=0.7*sqrt(n_sabl_f_no7no8_spwn_no65immature_07_18), pch=16, col = "#92c5de")
+points(x = bin_sabl_f_no7no8_spwn_no70immature_95_01, y = prop_sabl_f_no7no8_spwn_no70immature_95_01,cex=0.7*sqrt(n_sabl_f_no7no8_spwn_no70immature_95_01), pch=16, col = "#f4a582")
+points(x = bin_sabl_f_no7no8_spwn_no70immature_07_18, y = prop_sabl_f_no7no8_spwn_no70immature_07_18,cex=0.7*sqrt(n_sabl_f_no7no8_spwn_no70immature_07_18), pch=16, col = "#92c5de")
 
 
-lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no7no8_spwn_no65immature_95_01+(B_glm.sabl_f_no7no8_spwn_no65immature_95_01*(30:83)))))), type = "l", col='#b2182b', pch = 19, lty =1,lwd = 3)####Time Period 2#####
-lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no7no8_spwn_no65immature_07_18+(B_glm.sabl_f_no7no8_spwn_no65immature_07_18*(30:83)))))), type = "l", col='#2166ac', pch = 19, lty =1,lwd = 3)####Time Period 2#####
+lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no7no8_spwn_no70immature_95_01+(B_glm.sabl_f_no7no8_spwn_no70immature_95_01*(30:83)))))), type = "l", col='#b2182b', pch = 19, lty =1,lwd = 3)####Time Period 2#####
+lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no7no8_spwn_no70immature_07_18+(B_glm.sabl_f_no7no8_spwn_no70immature_07_18*(30:83)))))), type = "l", col='#2166ac', pch = 19, lty =1,lwd = 3)####Time Period 2#####
 
 # GLM Confidence Bands #
 
 plotdat <- data.frame(length=(30:83))
-predat_sabl_f_no7no8_spwn_no65immature_95_01 <- predict(fit.mat.glm.sabl_spwn_no65immature_no7no8_95_01,newdata=plotdat, se.fit=TRUE)
-with(predat_sabl_f_no7no8_spwn_no65immature_95_01, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#b2182b"))
-with(predat_sabl_f_no7no8_spwn_no65immature_95_01, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#b2182b"))
+predat_sabl_f_no7no8_spwn_no70immature_95_01 <- predict(fit.mat.glm.sabl_spwn_no70immature_no7no8_95_01,newdata=plotdat, se.fit=TRUE)
+with(predat_sabl_f_no7no8_spwn_no70immature_95_01, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#b2182b"))
+with(predat_sabl_f_no7no8_spwn_no70immature_95_01, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#b2182b"))
 
-predat_sabl_f_no7no8_spwn_no65immature_07_18 <- predict(fit.mat.glm.sabl_spwn_no65immature_no7no8_07_18,newdata=plotdat, se.fit=TRUE)
-with(predat_sabl_f_no7no8_spwn_no65immature_07_18, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#2166ac"))
-with(predat_sabl_f_no7no8_spwn_no65immature_07_18, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#2166ac"))
+predat_sabl_f_no7no8_spwn_no70immature_07_18 <- predict(fit.mat.glm.sabl_spwn_no70immature_no7no8_07_18,newdata=plotdat, se.fit=TRUE)
+with(predat_sabl_f_no7no8_spwn_no70immature_07_18, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#2166ac"))
+with(predat_sabl_f_no7no8_spwn_no70immature_07_18, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#2166ac"))
 
 
 #Legend
@@ -2188,7 +2381,7 @@ legend(54,0.1, legend=c("1980-1984","2010-2018"), col=c("#b2182b", "#2166ac"), l
        lty= c(1,1,1), cex=1.5, bty="n")
 
 # Add lettering for figure
-text(65, 1.08,  "(a)",cex = 4)
+text(70, 1.08,  "(a)",cex = 4)
 
 #<!-- ``` -->
 
@@ -2262,7 +2455,7 @@ legend(54,0.1, legend=c("1980-1984","2010-2018"), col=c("#b2182b", "#2166ac"), l
        lty= c(1,1,1), cex=1.5, bty="n")
 
 # Add lettering for figure
-text(65, 1.08,  "(b)",cex = 4)
+text(70, 1.08,  "(b)",cex = 4)
 
 # dev.off()
 
@@ -2343,7 +2536,7 @@ legend(54,0.1, legend=c("1980-1984","2010-2018"), col=c("#b2182b", "#2166ac"), l
        lty= c(1,1,1), cex=1.5, bty="n")
 
 # Add lettering for figure
-text(65, 1.08,  "(c)",cex = 4)
+text(70, 1.08,  "(c)",cex = 4)
 
 # dev.off()
 
@@ -2419,7 +2612,7 @@ legend(54,0.1, legend=c("1980-1984","2010-2018"), col=c("#b2182b", "#2166ac"), l
        lty= c(1,1,1), cex=1.5, bty="n")
 
 # Add lettering for figure
-text(65, 1.08,  "(d)",cex = 4)
+text(70, 1.08,  "(d)",cex = 4)
 
 # dev.off()
 
@@ -2511,55 +2704,55 @@ text(82, 1.08, "(e)",cex = 4)
 #<!-- ``` -->
 
 
-### All seasons, all codes, no immature fish >= 65 cm
-# ```{r get_parameters_sabl_allcodes_allseasons_no65immature}
+### All seasons, all codes, no immature fish >= 70 cm
+# ```{r get_parameters_sabl_allcodes_allseasons_no70immature}
 # 1995-2001 # 
-bin_sabl_f_no65immature_95_01 <- sabl_prop_mature_f_no65immature_95_01$length_cm
-prop_sabl_f_no65immature_95_01 <- sabl_prop_mature_f_no65immature_95_01$prop_mature
-n_sabl_f_no65immature_95_01 <- sabl_prop_mature_f_no65immature_95_01$n
-fit.mat.glm.sabl_f_no65immature_95_01[1]
-df.fit.mat.glm.sabl_f_no65immature_95_01 = as.data.frame(fit.mat.glm.sabl_f_no65immature_95_01[1])
-A_glm.sabl_f_no65immature_95_01 = df.fit.mat.glm.sabl_f_no65immature_95_01$coefficients[1]
-B_glm.sabl_f_no65immature_95_01 = df.fit.mat.glm.sabl_f_no65immature_95_01$coefficients[2]
+bin_sabl_f_no70immature_95_01 <- sabl_prop_mature_f_no70immature_95_01$length_cm
+prop_sabl_f_no70immature_95_01 <- sabl_prop_mature_f_no70immature_95_01$prop_mature
+n_sabl_f_no70immature_95_01 <- sabl_prop_mature_f_no70immature_95_01$n
+fit.mat.glm.sabl_f_no70immature_95_01[1]
+df.fit.mat.glm.sabl_f_no70immature_95_01 = as.data.frame(fit.mat.glm.sabl_f_no70immature_95_01[1])
+A_glm.sabl_f_no70immature_95_01 = df.fit.mat.glm.sabl_f_no70immature_95_01$coefficients[1]
+B_glm.sabl_f_no70immature_95_01 = df.fit.mat.glm.sabl_f_no70immature_95_01$coefficients[2]
 
 # 2007-2018 # 
-bin_sabl_f_no65immature_07_18 <- sabl_prop_mature_f_no65immature_07_18$length_cm
-prop_sabl_f_no65immature_07_18 <- sabl_prop_mature_f_no65immature_07_18$prop_mature
-n_sabl_f_no65immature_07_18 <- sabl_prop_mature_f_no65immature_07_18$n
-fit.mat.glm.sabl_f_no65immature_07_18[1]
-df.fit.mat.glm.sabl_f_no65immature_07_18 = as.data.frame(fit.mat.glm.sabl_f_no65immature_07_18[1])
-A_glm.sabl_f_no65immature_07_18 = df.fit.mat.glm.sabl_f_no65immature_07_18$coefficients[1]
-B_glm.sabl_f_no65immature_07_18 = df.fit.mat.glm.sabl_f_no65immature_07_18$coefficients[2]
+bin_sabl_f_no70immature_07_18 <- sabl_prop_mature_f_no70immature_07_18$length_cm
+prop_sabl_f_no70immature_07_18 <- sabl_prop_mature_f_no70immature_07_18$prop_mature
+n_sabl_f_no70immature_07_18 <- sabl_prop_mature_f_no70immature_07_18$n
+fit.mat.glm.sabl_f_no70immature_07_18[1]
+df.fit.mat.glm.sabl_f_no70immature_07_18 = as.data.frame(fit.mat.glm.sabl_f_no70immature_07_18[1])
+A_glm.sabl_f_no70immature_07_18 = df.fit.mat.glm.sabl_f_no70immature_07_18$coefficients[1]
+B_glm.sabl_f_no70immature_07_18 = df.fit.mat.glm.sabl_f_no70immature_07_18$coefficients[2]
 #<!-- ``` -->
 
 # ```{r plot_sabl_allcodes_comparisons}
 
 ### CREATE PLOT
 # setEPS()
-# postscript(here("figures", "historical_sensitivity_analysis", "sabl_allseasons_allcodes_no65immature_histcomp.eps"), height = 8, width = 8)
+# postscript(here("figures", "historical_sensitivity_analysis", "sabl_allseasons_allcodes_no70immature_histcomp.eps"), height = 8, width = 8)
 
 # par(mfrow=c(1,1))
 par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
 plot(0, type ='n', xlim=c(30,85),ylim=c(-0.01,1.1),xlab="Length (cm)",ylab="Proportion mature", cex.lab = 1.6, cex.axis = 1.3)
 
 # points(x = bin_m.2, y = prop_m.2,cex=0.7*sqrt(n_m.2), pch=16, col = rgb(0,0,1,0.2))
-points(x = bin_sabl_f_no65immature_95_01, y = prop_sabl_f_no65immature_95_01,cex=0.7*sqrt(n_sabl_f_no65immature_95_01), pch=16, col = "#f4a582")
-points(x = bin_sabl_f_no65immature_07_18, y = prop_sabl_f_no65immature_07_18,cex=0.7*sqrt(n_sabl_f_no65immature_07_18), pch=16, col = "#92c5de")
+points(x = bin_sabl_f_no70immature_95_01, y = prop_sabl_f_no70immature_95_01,cex=0.7*sqrt(n_sabl_f_no70immature_95_01), pch=16, col = "#f4a582")
+points(x = bin_sabl_f_no70immature_07_18, y = prop_sabl_f_no70immature_07_18,cex=0.7*sqrt(n_sabl_f_no70immature_07_18), pch=16, col = "#92c5de")
 
 
-lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no65immature_95_01+(B_glm.sabl_f_no65immature_95_01*(30:83)))))), type = "l", col='#b2182b', pch = 19, lty =1,lwd = 3)####Time Period 2#####
-lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no65immature_07_18+(B_glm.sabl_f_no65immature_07_18*(30:83)))))), type = "l", col='#2166ac', pch = 19, lty =1,lwd = 3)####Time Period 2#####
+lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no70immature_95_01+(B_glm.sabl_f_no70immature_95_01*(30:83)))))), type = "l", col='#b2182b', pch = 19, lty =1,lwd = 3)####Time Period 2#####
+lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no70immature_07_18+(B_glm.sabl_f_no70immature_07_18*(30:83)))))), type = "l", col='#2166ac', pch = 19, lty =1,lwd = 3)####Time Period 2#####
 
 # GLM Confidence Bands #
 
 plotdat <- data.frame(length=(30:83))
-predat_sabl_f_no65immature_95_01 <- predict(fit.mat.glm.sabl_f_no65immature_95_01,newdata=plotdat, se.fit=TRUE)
-with(predat_sabl_f_no65immature_95_01, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#b2182b"))
-with(predat_sabl_f_no65immature_95_01, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#b2182b"))
+predat_sabl_f_no70immature_95_01 <- predict(fit.mat.glm.sabl_f_no70immature_95_01,newdata=plotdat, se.fit=TRUE)
+with(predat_sabl_f_no70immature_95_01, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#b2182b"))
+with(predat_sabl_f_no70immature_95_01, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#b2182b"))
 
-predat_sabl_f_no65immature_07_18 <- predict(fit.mat.glm.sabl_f_no65immature_07_18,newdata=plotdat, se.fit=TRUE)
-with(predat_sabl_f_no65immature_07_18, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#2166ac"))
-with(predat_sabl_f_no65immature_07_18, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#2166ac"))
+predat_sabl_f_no70immature_07_18 <- predict(fit.mat.glm.sabl_f_no70immature_07_18,newdata=plotdat, se.fit=TRUE)
+with(predat_sabl_f_no70immature_07_18, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#2166ac"))
+with(predat_sabl_f_no70immature_07_18, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#2166ac"))
 
 
 #Legend
@@ -2590,55 +2783,55 @@ text(82, 1.08, "(f)",cex = 4)
 
 
 
-### All seasons, no 7s no 8s and no fish >= 65 cm that are immature
-# ```{r get_parameters_sabl_no7no8_allseasons_no7no8_no65immature}
+### All seasons, no 7s no 8s and no fish >= 70 cm that are immature
+# ```{r get_parameters_sabl_no7no8_allseasons_no7no8_no70immature}
 # 1995-2001 # 
-bin_sabl_f_no7no8_no65immature_95_01 <- sabl_prop_mature_f_no7no8_no65immature_95_01$length_cm
-prop_sabl_f_no7no8_no65immature_95_01 <- sabl_prop_mature_f_no7no8_no65immature_95_01$prop_mature
-n_sabl_f_no7no8_no65immature_95_01 <- sabl_prop_mature_f_no7no8_no65immature_95_01$n
-fit.mat.glm.sabl_no7no8_no65immature_95_01[1]
-df.fit.mat.glm.sabl_no7no8_no65immature_95_01 = as.data.frame(fit.mat.glm.sabl_no7no8_no65immature_95_01[1])
-A_glm.sabl_f_no7no8_no65immature_95_01 = df.fit.mat.glm.sabl_no7no8_no65immature_95_01$coefficients[1]
-B_glm.sabl_f_no7no8_no65immature_95_01 = df.fit.mat.glm.sabl_no7no8_no65immature_95_01$coefficients[2]
+bin_sabl_f_no7no8_no70immature_95_01 <- sabl_prop_mature_f_no7no8_no70immature_95_01$length_cm
+prop_sabl_f_no7no8_no70immature_95_01 <- sabl_prop_mature_f_no7no8_no70immature_95_01$prop_mature
+n_sabl_f_no7no8_no70immature_95_01 <- sabl_prop_mature_f_no7no8_no70immature_95_01$n
+fit.mat.glm.sabl_no7no8_no70immature_95_01[1]
+df.fit.mat.glm.sabl_no7no8_no70immature_95_01 = as.data.frame(fit.mat.glm.sabl_no7no8_no70immature_95_01[1])
+A_glm.sabl_f_no7no8_no70immature_95_01 = df.fit.mat.glm.sabl_no7no8_no70immature_95_01$coefficients[1]
+B_glm.sabl_f_no7no8_no70immature_95_01 = df.fit.mat.glm.sabl_no7no8_no70immature_95_01$coefficients[2]
 
 # 2007-2018 # 
-bin_sabl_f_no7no8_no65immature_07_18 <- sabl_prop_mature_f_no7no8_no65immature_07_18$length_cm
-prop_sabl_f_no7no8_no65immature_07_18 <- sabl_prop_mature_f_no7no8_no65immature_07_18$prop_mature
-n_sabl_f_no7no8_no65immature_07_18 <- sabl_prop_mature_f_no7no8_no65immature_07_18$n
-fit.mat.glm.sabl_no7no8_no65immature_07_18[1]
-df.fit.mat.glm.sabl_no7no8_no65immature_07_18 = as.data.frame(fit.mat.glm.sabl_no7no8_no65immature_07_18[1])
-A_glm.sabl_f_no7no8_no65immature_07_18 = df.fit.mat.glm.sabl_no7no8_no65immature_07_18$coefficients[1]
-B_glm.sabl_f_no7no8_no65immature_07_18 = df.fit.mat.glm.sabl_no7no8_no65immature_07_18$coefficients[2]
+bin_sabl_f_no7no8_no70immature_07_18 <- sabl_prop_mature_f_no7no8_no70immature_07_18$length_cm
+prop_sabl_f_no7no8_no70immature_07_18 <- sabl_prop_mature_f_no7no8_no70immature_07_18$prop_mature
+n_sabl_f_no7no8_no70immature_07_18 <- sabl_prop_mature_f_no7no8_no70immature_07_18$n
+fit.mat.glm.sabl_no7no8_no70immature_07_18[1]
+df.fit.mat.glm.sabl_no7no8_no70immature_07_18 = as.data.frame(fit.mat.glm.sabl_no7no8_no70immature_07_18[1])
+A_glm.sabl_f_no7no8_no70immature_07_18 = df.fit.mat.glm.sabl_no7no8_no70immature_07_18$coefficients[1]
+B_glm.sabl_f_no7no8_no70immature_07_18 = df.fit.mat.glm.sabl_no7no8_no70immature_07_18$coefficients[2]
 #<!-- ``` -->
 
 # ```{r plot_sabl_allseasons_no7no8_comparisons}
 
 ### CREATE PLOT
 # setEPS()
-# postscript(here("figures", "historical_sensitivity_analysis", "sabl_allseasons_no7no8_no65immature_histcomp.eps"), height = 8, width = 8)
+# postscript(here("figures", "historical_sensitivity_analysis", "sabl_allseasons_no7no8_no70immature_histcomp.eps"), height = 8, width = 8)
 
 # par(mfrow=c(1,1))
 par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
 plot(0, type ='n', xlim=c(30,85),ylim=c(-0.01,1.1),xlab="Length (cm)",ylab="Proportion mature", cex.lab = 1.6, cex.axis = 1.3)
 
 # points(x = bin_m.2, y = prop_m.2,cex=0.7*sqrt(n_m.2), pch=16, col = rgb(0,0,1,0.2))
-points(x = bin_sabl_f_no7no8_no65immature_95_01, y = prop_sabl_f_no7no8_no65immature_95_01,cex=0.7*sqrt(n_sabl_f_no7no8_no65immature_95_01), pch=16, col = "#f4a582")
-points(x = bin_sabl_f_no7no8_no65immature_07_18, y = prop_sabl_f_no7no8_no65immature_07_18,cex=0.7*sqrt(n_sabl_f_no7no8_no65immature_07_18), pch=16, col = "#92c5de")
+points(x = bin_sabl_f_no7no8_no70immature_95_01, y = prop_sabl_f_no7no8_no70immature_95_01,cex=0.7*sqrt(n_sabl_f_no7no8_no70immature_95_01), pch=16, col = "#f4a582")
+points(x = bin_sabl_f_no7no8_no70immature_07_18, y = prop_sabl_f_no7no8_no70immature_07_18,cex=0.7*sqrt(n_sabl_f_no7no8_no70immature_07_18), pch=16, col = "#92c5de")
 
 
-lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no7no8_no65immature_95_01+(B_glm.sabl_f_no7no8_no65immature_95_01*(30:83)))))), type = "l", col='#b2182b', pch = 19, lty =1,lwd = 3)####Time Period 2#####
-lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no7no8_no65immature_07_18+(B_glm.sabl_f_no7no8_no65immature_07_18*(30:83)))))), type = "l", col='#2166ac', pch = 19, lty =1,lwd = 3)####Time Period 2#####
+lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no7no8_no70immature_95_01+(B_glm.sabl_f_no7no8_no70immature_95_01*(30:83)))))), type = "l", col='#b2182b', pch = 19, lty =1,lwd = 3)####Time Period 2#####
+lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no7no8_no70immature_07_18+(B_glm.sabl_f_no7no8_no70immature_07_18*(30:83)))))), type = "l", col='#2166ac', pch = 19, lty =1,lwd = 3)####Time Period 2#####
 
 # GLM Confidence Bands #
 
 plotdat <- data.frame(length=(30:83))
-predat_sabl_f_no7no8_no65immature_95_01 <- predict(fit.mat.glm.sabl_no7no8_no65immature_95_01,newdata=plotdat, se.fit=TRUE)
-with(predat_sabl_f_no7no8_no65immature_95_01, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#b2182b"))
-with(predat_sabl_f_no7no8_no65immature_95_01, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#b2182b"))
+predat_sabl_f_no7no8_no70immature_95_01 <- predict(fit.mat.glm.sabl_no7no8_no70immature_95_01,newdata=plotdat, se.fit=TRUE)
+with(predat_sabl_f_no7no8_no70immature_95_01, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#b2182b"))
+with(predat_sabl_f_no7no8_no70immature_95_01, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#b2182b"))
 
-predat_sabl_f_no7no8_no65immature_07_18 <- predict(fit.mat.glm.sabl_no7no8_no65immature_07_18,newdata=plotdat, se.fit=TRUE)
-with(predat_sabl_f_no7no8_no65immature_07_18, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#2166ac"))
-with(predat_sabl_f_no7no8_no65immature_07_18, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#2166ac"))
+predat_sabl_f_no7no8_no70immature_07_18 <- predict(fit.mat.glm.sabl_no7no8_no70immature_07_18,newdata=plotdat, se.fit=TRUE)
+with(predat_sabl_f_no7no8_no70immature_07_18, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#2166ac"))
+with(predat_sabl_f_no7no8_no70immature_07_18, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#2166ac"))
 
 
 #Legend
@@ -2670,55 +2863,55 @@ text(82, 1.08, "(g)",cex = 4)
 
 
 
-### Spawning season, all codes, no immature fish >= 65 cm
-# ```{r get_parameters_sabl_allcodes_spwn_no65immature}
+### Spawning season, all codes, no immature fish >= 70 cm
+# ```{r get_parameters_sabl_allcodes_spwn_no70immature}
 # 1995-2001 # 
-bin_sabl_f_spwn_no65immature_95_01 <- sabl_prop_mature_f_spwn_no65immature_95_01$length_cm
-prop_sabl_f_spwn_no65immature_95_01 <- sabl_prop_mature_f_spwn_no65immature_95_01$prop_mature
-n_sabl_f_spwn_no65immature_95_01 <- sabl_prop_mature_f_spwn_no65immature_95_01$n
-fit.mat.glm.sabl_spwn_no65immature_95_01[1]
-df.fit.mat.glm.sabl_spwn_no65immature_95_01 = as.data.frame(fit.mat.glm.sabl_spwn_no65immature_95_01[1])
-A_glm.sabl_f_spwn_no65immature_95_01 = df.fit.mat.glm.sabl_spwn_no65immature_95_01$coefficients[1]
-B_glm.sabl_f_spwn_no65immature_95_01 = df.fit.mat.glm.sabl_spwn_no65immature_95_01$coefficients[2]
+bin_sabl_f_spwn_no70immature_95_01 <- sabl_prop_mature_f_spwn_no70immature_95_01$length_cm
+prop_sabl_f_spwn_no70immature_95_01 <- sabl_prop_mature_f_spwn_no70immature_95_01$prop_mature
+n_sabl_f_spwn_no70immature_95_01 <- sabl_prop_mature_f_spwn_no70immature_95_01$n
+fit.mat.glm.sabl_spwn_no70immature_95_01[1]
+df.fit.mat.glm.sabl_spwn_no70immature_95_01 = as.data.frame(fit.mat.glm.sabl_spwn_no70immature_95_01[1])
+A_glm.sabl_f_spwn_no70immature_95_01 = df.fit.mat.glm.sabl_spwn_no70immature_95_01$coefficients[1]
+B_glm.sabl_f_spwn_no70immature_95_01 = df.fit.mat.glm.sabl_spwn_no70immature_95_01$coefficients[2]
 
 # 2007-2018 # 
-bin_sabl_f_spwn_no65immature_07_18 <- sabl_prop_mature_f_spwn_no65immature_07_18$length_cm
-prop_sabl_f_spwn_no65immature_07_18 <- sabl_prop_mature_f_spwn_no65immature_07_18$prop_mature
-n_sabl_f_spwn_no65immature_07_18 <- sabl_prop_mature_f_spwn_no65immature_07_18$n
-fit.mat.glm.sabl_spwn_no65immature_07_18[1]
-df.fit.mat.glm.sabl_spwn_no65immature_07_18 = as.data.frame(fit.mat.glm.sabl_spwn_no65immature_07_18[1])
-A_glm.sabl_f_spwn_no65immature_07_18 = df.fit.mat.glm.sabl_spwn_no65immature_07_18$coefficients[1]
-B_glm.sabl_f_spwn_no65immature_07_18 = df.fit.mat.glm.sabl_spwn_no65immature_07_18$coefficients[2]
+bin_sabl_f_spwn_no70immature_07_18 <- sabl_prop_mature_f_spwn_no70immature_07_18$length_cm
+prop_sabl_f_spwn_no70immature_07_18 <- sabl_prop_mature_f_spwn_no70immature_07_18$prop_mature
+n_sabl_f_spwn_no70immature_07_18 <- sabl_prop_mature_f_spwn_no70immature_07_18$n
+fit.mat.glm.sabl_spwn_no70immature_07_18[1]
+df.fit.mat.glm.sabl_spwn_no70immature_07_18 = as.data.frame(fit.mat.glm.sabl_spwn_no70immature_07_18[1])
+A_glm.sabl_f_spwn_no70immature_07_18 = df.fit.mat.glm.sabl_spwn_no70immature_07_18$coefficients[1]
+B_glm.sabl_f_spwn_no70immature_07_18 = df.fit.mat.glm.sabl_spwn_no70immature_07_18$coefficients[2]
 #<!-- ``` -->
 
 # ```{r plot_sabl_allcodes_comparisons}
 
 ### CREATE PLOT
 # setEPS()
-# postscript(here("figures", "historical_sensitivity_analysis", "sabl_allseasons_allcodes_spwn_no65immature_histcomp.eps"), height = 8, width = 8)
+# postscript(here("figures", "historical_sensitivity_analysis", "sabl_allseasons_allcodes_spwn_no70immature_histcomp.eps"), height = 8, width = 8)
 
 # par(mfrow=c(1,1))
 par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
 plot(0, type ='n', xlim=c(30,85),ylim=c(-0.01,1.1),xlab="Length (cm)",ylab="Proportion mature", cex.lab = 1.6, cex.axis = 1.3)
 
 # points(x = bin_m.2, y = prop_m.2,cex=0.7*sqrt(n_m.2), pch=16, col = rgb(0,0,1,0.2))
-points(x = bin_sabl_f_spwn_no65immature_95_01, y = prop_sabl_f_spwn_no65immature_95_01,cex=0.7*sqrt(n_sabl_f_spwn_no65immature_95_01), pch=16, col = "#f4a582")
-points(x = bin_sabl_f_spwn_no65immature_07_18, y = prop_sabl_f_spwn_no65immature_07_18,cex=0.7*sqrt(n_sabl_f_spwn_no65immature_07_18), pch=16, col = "#92c5de")
+points(x = bin_sabl_f_spwn_no70immature_95_01, y = prop_sabl_f_spwn_no70immature_95_01,cex=0.7*sqrt(n_sabl_f_spwn_no70immature_95_01), pch=16, col = "#f4a582")
+points(x = bin_sabl_f_spwn_no70immature_07_18, y = prop_sabl_f_spwn_no70immature_07_18,cex=0.7*sqrt(n_sabl_f_spwn_no70immature_07_18), pch=16, col = "#92c5de")
 
 
-lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_spwn_no65immature_95_01+(B_glm.sabl_f_spwn_no65immature_95_01*(30:83)))))), type = "l", col='#b2182b', pch = 19, lty =1,lwd = 3)####Time Period 2#####
-lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_spwn_no65immature_07_18+(B_glm.sabl_f_spwn_no65immature_07_18*(30:83)))))), type = "l", col='#2166ac', pch = 19, lty =1,lwd = 3)####Time Period 2#####
+lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_spwn_no70immature_95_01+(B_glm.sabl_f_spwn_no70immature_95_01*(30:83)))))), type = "l", col='#b2182b', pch = 19, lty =1,lwd = 3)####Time Period 2#####
+lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_spwn_no70immature_07_18+(B_glm.sabl_f_spwn_no70immature_07_18*(30:83)))))), type = "l", col='#2166ac', pch = 19, lty =1,lwd = 3)####Time Period 2#####
 
 # GLM Confidence Bands #
 
 plotdat <- data.frame(length=(30:83))
-predat_sabl_f_spwn_no65immature_95_01 <- predict(fit.mat.glm.sabl_spwn_no65immature_95_01,newdata=plotdat, se.fit=TRUE)
-with(predat_sabl_f_spwn_no65immature_95_01, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#b2182b"))
-with(predat_sabl_f_spwn_no65immature_95_01, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#b2182b"))
+predat_sabl_f_spwn_no70immature_95_01 <- predict(fit.mat.glm.sabl_spwn_no70immature_95_01,newdata=plotdat, se.fit=TRUE)
+with(predat_sabl_f_spwn_no70immature_95_01, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#b2182b"))
+with(predat_sabl_f_spwn_no70immature_95_01, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#b2182b"))
 
-predat_sabl_f_spwn_no65immature_07_18 <- predict(fit.mat.glm.sabl_spwn_no65immature_07_18,newdata=plotdat, se.fit=TRUE)
-with(predat_sabl_f_spwn_no65immature_07_18, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#2166ac"))
-with(predat_sabl_f_spwn_no65immature_07_18, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#2166ac"))
+predat_sabl_f_spwn_no70immature_07_18 <- predict(fit.mat.glm.sabl_spwn_no70immature_07_18,newdata=plotdat, se.fit=TRUE)
+with(predat_sabl_f_spwn_no70immature_07_18, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#2166ac"))
+with(predat_sabl_f_spwn_no70immature_07_18, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#2166ac"))
 
 
 #Legend
@@ -2752,55 +2945,55 @@ text(82, 1.08, "(h)",cex = 4)
 
 
 
-### Spawning season, no 7s no 8s and no fish >= 65 cm that are immature
-# ```{r get_parameters_sabl_no7no8_spwn_no65immature}
+### Spawning season, no 7s no 8s and no fish >= 70 cm that are immature
+# ```{r get_parameters_sabl_no7no8_spwn_no70immature}
 # 1995-2001 # 
-bin_sabl_f_no7no8_spwn_no65immature_95_01 <- sabl_prop_mature_f_spwn_no65immature_no7no8_95_01$length_cm
-prop_sabl_f_no7no8_spwn_no65immature_95_01 <- sabl_prop_mature_f_spwn_no65immature_no7no8_95_01$prop_mature
-n_sabl_f_no7no8_spwn_no65immature_95_01 <- sabl_prop_mature_f_spwn_no65immature_no7no8_95_01$n
-fit.mat.glm.sabl_spwn_no65immature_no7no8_95_01[1]
-df.fit.mat.glm.sabl_spwn_no65immature_no7no8_95_01 = as.data.frame(fit.mat.glm.sabl_spwn_no65immature_no7no8_95_01[1])
-A_glm.sabl_f_no7no8_spwn_no65immature_95_01 = df.fit.mat.glm.sabl_spwn_no65immature_no7no8_95_01$coefficients[1]
-B_glm.sabl_f_no7no8_spwn_no65immature_95_01 = df.fit.mat.glm.sabl_spwn_no65immature_no7no8_95_01$coefficients[2]
+bin_sabl_f_no7no8_spwn_no70immature_95_01 <- sabl_prop_mature_f_spwn_no70immature_no7no8_95_01$length_cm
+prop_sabl_f_no7no8_spwn_no70immature_95_01 <- sabl_prop_mature_f_spwn_no70immature_no7no8_95_01$prop_mature
+n_sabl_f_no7no8_spwn_no70immature_95_01 <- sabl_prop_mature_f_spwn_no70immature_no7no8_95_01$n
+fit.mat.glm.sabl_spwn_no70immature_no7no8_95_01[1]
+df.fit.mat.glm.sabl_spwn_no70immature_no7no8_95_01 = as.data.frame(fit.mat.glm.sabl_spwn_no70immature_no7no8_95_01[1])
+A_glm.sabl_f_no7no8_spwn_no70immature_95_01 = df.fit.mat.glm.sabl_spwn_no70immature_no7no8_95_01$coefficients[1]
+B_glm.sabl_f_no7no8_spwn_no70immature_95_01 = df.fit.mat.glm.sabl_spwn_no70immature_no7no8_95_01$coefficients[2]
 
 # 2007-2018 # 
-bin_sabl_f_no7no8_spwn_no65immature_07_18 <- sabl_prop_mature_f_spwn_no65immature_no7no8_07_18$length_cm
-prop_sabl_f_no7no8_spwn_no65immature_07_18 <- sabl_prop_mature_f_spwn_no65immature_no7no8_07_18$prop_mature
-n_sabl_f_no7no8_spwn_no65immature_07_18 <- sabl_prop_mature_f_spwn_no65immature_no7no8_07_18$n
-fit.mat.glm.sabl_spwn_no65immature_no7no8_07_18[1]
-df.fit.mat.glm.sabl_spwn_no65immature_no7no8_07_18 = as.data.frame(fit.mat.glm.sabl_spwn_no65immature_no7no8_07_18[1])
-A_glm.sabl_f_no7no8_spwn_no65immature_07_18 = df.fit.mat.glm.sabl_spwn_no65immature_no7no8_07_18$coefficients[1]
-B_glm.sabl_f_no7no8_spwn_no65immature_07_18 = df.fit.mat.glm.sabl_spwn_no65immature_no7no8_07_18$coefficients[2]
+bin_sabl_f_no7no8_spwn_no70immature_07_18 <- sabl_prop_mature_f_spwn_no70immature_no7no8_07_18$length_cm
+prop_sabl_f_no7no8_spwn_no70immature_07_18 <- sabl_prop_mature_f_spwn_no70immature_no7no8_07_18$prop_mature
+n_sabl_f_no7no8_spwn_no70immature_07_18 <- sabl_prop_mature_f_spwn_no70immature_no7no8_07_18$n
+fit.mat.glm.sabl_spwn_no70immature_no7no8_07_18[1]
+df.fit.mat.glm.sabl_spwn_no70immature_no7no8_07_18 = as.data.frame(fit.mat.glm.sabl_spwn_no70immature_no7no8_07_18[1])
+A_glm.sabl_f_no7no8_spwn_no70immature_07_18 = df.fit.mat.glm.sabl_spwn_no70immature_no7no8_07_18$coefficients[1]
+B_glm.sabl_f_no7no8_spwn_no70immature_07_18 = df.fit.mat.glm.sabl_spwn_no70immature_no7no8_07_18$coefficients[2]
 #<!-- ``` -->
 
 # ```{r plot_sabl_allseasons_no7no8_comparisons}
 
 ### CREATE PLOT
 # setEPS()
-# postscript(here("figures", "historical_sensitivity_analysis", "sabl_no7no8_spwn_no65immature_histcomp.eps"), height = 8, width = 8)
+# postscript(here("figures", "historical_sensitivity_analysis", "sabl_no7no8_spwn_no70immature_histcomp.eps"), height = 8, width = 8)
 
 # par(mfrow=c(1,1))
 par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
 plot(0, type ='n', xlim=c(30,85),ylim=c(-0.01,1.1),xlab="Length (cm)",ylab="Proportion mature", cex.lab = 1.6, cex.axis = 1.3)
 
 # points(x = bin_m.2, y = prop_m.2,cex=0.7*sqrt(n_m.2), pch=16, col = rgb(0,0,1,0.2))
-points(x = bin_sabl_f_no7no8_spwn_no65immature_95_01, y = prop_sabl_f_no7no8_spwn_no65immature_95_01,cex=0.7*sqrt(n_sabl_f_no7no8_spwn_no65immature_95_01), pch=16, col = "#f4a582")
-points(x = bin_sabl_f_no7no8_spwn_no65immature_07_18, y = prop_sabl_f_no7no8_spwn_no65immature_07_18,cex=0.7*sqrt(n_sabl_f_no7no8_spwn_no65immature_07_18), pch=16, col = "#92c5de")
+points(x = bin_sabl_f_no7no8_spwn_no70immature_95_01, y = prop_sabl_f_no7no8_spwn_no70immature_95_01,cex=0.7*sqrt(n_sabl_f_no7no8_spwn_no70immature_95_01), pch=16, col = "#f4a582")
+points(x = bin_sabl_f_no7no8_spwn_no70immature_07_18, y = prop_sabl_f_no7no8_spwn_no70immature_07_18,cex=0.7*sqrt(n_sabl_f_no7no8_spwn_no70immature_07_18), pch=16, col = "#92c5de")
 
 
-lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no7no8_spwn_no65immature_95_01+(B_glm.sabl_f_no7no8_spwn_no65immature_95_01*(30:83)))))), type = "l", col='#b2182b', pch = 19, lty =1,lwd = 3)####Time Period 2#####
-lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no7no8_spwn_no65immature_07_18+(B_glm.sabl_f_no7no8_spwn_no65immature_07_18*(30:83)))))), type = "l", col='#2166ac', pch = 19, lty =1,lwd = 3)####Time Period 2#####
+lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no7no8_spwn_no70immature_95_01+(B_glm.sabl_f_no7no8_spwn_no70immature_95_01*(30:83)))))), type = "l", col='#b2182b', pch = 19, lty =1,lwd = 3)####Time Period 2#####
+lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no7no8_spwn_no70immature_07_18+(B_glm.sabl_f_no7no8_spwn_no70immature_07_18*(30:83)))))), type = "l", col='#2166ac', pch = 19, lty =1,lwd = 3)####Time Period 2#####
 
 # GLM Confidence Bands #
 
 plotdat <- data.frame(length=(30:83))
-predat_sabl_f_no7no8_spwn_no65immature_95_01 <- predict(fit.mat.glm.sabl_spwn_no65immature_no7no8_95_01,newdata=plotdat, se.fit=TRUE)
-with(predat_sabl_f_no7no8_spwn_no65immature_95_01, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#b2182b"))
-with(predat_sabl_f_no7no8_spwn_no65immature_95_01, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#b2182b"))
+predat_sabl_f_no7no8_spwn_no70immature_95_01 <- predict(fit.mat.glm.sabl_spwn_no70immature_no7no8_95_01,newdata=plotdat, se.fit=TRUE)
+with(predat_sabl_f_no7no8_spwn_no70immature_95_01, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#b2182b"))
+with(predat_sabl_f_no7no8_spwn_no70immature_95_01, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#b2182b"))
 
-predat_sabl_f_no7no8_spwn_no65immature_07_18 <- predict(fit.mat.glm.sabl_spwn_no65immature_no7no8_07_18,newdata=plotdat, se.fit=TRUE)
-with(predat_sabl_f_no7no8_spwn_no65immature_07_18, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#2166ac"))
-with(predat_sabl_f_no7no8_spwn_no65immature_07_18, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#2166ac"))
+predat_sabl_f_no7no8_spwn_no70immature_07_18 <- predict(fit.mat.glm.sabl_spwn_no70immature_no7no8_07_18,newdata=plotdat, se.fit=TRUE)
+with(predat_sabl_f_no7no8_spwn_no70immature_07_18, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#2166ac"))
+with(predat_sabl_f_no7no8_spwn_no70immature_07_18, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#2166ac"))
 
 
 #Legend
