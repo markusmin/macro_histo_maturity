@@ -159,6 +159,7 @@ sablefish_maturity_results$beta <- c(paste0(round(B_glm.bio.SABL,2), " (", round
 
 # round values
 sablefish_maturity_results$Lmat50 <- round(sablefish_maturity_results$Lmat50, 2)
+sablefish_maturity_results$plusminusCI95 <- round(sablefish_maturity_results$plusminusCI95, 2)
 
 ### Get maturity parameters for use in stock assessment model
 
@@ -401,6 +402,7 @@ canary_maturity_results$beta <- c(paste0(round(B_glm.bio.CNRY,2), " (", round(sB
                                                                                                               " (", round(sB.fun.CNRY,2), ")"), paste0(round(B_glm.macro.CNRY,2), " (", round(sB.macro.CNRY, 2), ")"))
 # round values
 canary_maturity_results$Lmat50 <- round(canary_maturity_results$Lmat50, 2)
+canary_maturity_results$plusminusCI95 <- round(canary_maturity_results$plusminusCI95, 2)
 
 
 
@@ -646,6 +648,7 @@ arrowtooth_maturity_results$beta <- c(paste0(round(B_glm.bio.ARTH,2), " (", roun
   
 # round values
 arrowtooth_maturity_results$Lmat50 <- round(arrowtooth_maturity_results$Lmat50, 2)
+arrowtooth_maturity_results$plusminusCI95 <- round(arrowtooth_maturity_results$plusminusCI95, 2)
 
 
 
