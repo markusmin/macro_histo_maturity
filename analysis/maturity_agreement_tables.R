@@ -11,6 +11,7 @@ library(janitor)
 SABL.mat<-read_excel(here("data", "2015_2016 ODFW Sablefish maturity_updated.xlsx"))
 SABL.mat <- clean_names(SABL.mat)
 SABL.cert<-subset(SABL.mat,certainty==1) #subset only certain samples and those that were staged macroscopically#
+SABL.cert <- subset(SABL.cert, !(is.na(maturity_code)))
 SABL.cert <- clean_names(SABL.cert)
 
 # Move spent to stage 11 and resting/recovering/regenerating to stage 12
@@ -35,6 +36,41 @@ SABL.cert %>%
                                                                            ifelse(x3 == "Y", "3",
                                                              ifelse(x2 == "Y", "2",
                                                                     ifelse(x1 == "Y", "1", NA))))))))))))) -> SABL.cert
+
+# # Check accuracy by port sampler
+
+# Import experience (from email form Sheryl Flores)
+portbio_exp <- data.frame(port_biologist_initials = c("SF", "LG", "CG", "KL", "CR", "NW", "JL", "JSM"), 
+                          sabl_exp = c("10+ years", "6mo", "10+ years", "1-2 years", "<1 year", "10+ years", "2 years", "10+ years"),
+                          cnry_exp = c("10+ years", "6mo", "10+ years", "1-2 years", "<1 year", "10+ years", "2 years", "10+ years"),
+                          arth_exp = c("10+ years", "6mo", "10+ years", "2 years", "<1 year", "10+ years", "2 years", "10+ years"))
+
+SABL.cert %>%
+  mutate(bio_macro_agree = ifelse(biological_maturity == 0 & macro_maturity_code %in% c(1,2) | 
+                                    biological_maturity == 1 & macro_maturity_code %in% c(3,4,5,6,7,8), 1, 0)) -> SABL_for_comp
+
+# Change biologist initials so that all are capitalized
+SABL_for_comp %>% 
+  mutate(port_biologist_initials = toupper(port_biologist_initials)) -> SABL_for_comp
+
+SABL_for_comp %>% 
+  group_by(port_biologist_initials) %>% 
+  # count(port_biologist_initials)
+  summarise(n_correct = sum(bio_macro_agree)) -> SABL_correct_by_biologist
+
+SABL_for_comp %>% 
+  group_by(port_biologist_initials) %>% 
+  count(port_biologist_initials) -> SABL_nstaged_by_biologist
+
+SABL_correct_by_biologist %>% 
+  left_join(., SABL_nstaged_by_biologist, by = "port_biologist_initials") %>% 
+  mutate(accuracy = n_correct/n) %>% 
+  left_join(., portbio_exp, by = "port_biologist_initials") %>% 
+  dplyr::select(-c(cnry_exp, arth_exp))-> SABL_accuracy_by_biologist
+
+
+
+# Create table of individual stage comparisons
 
 SABL.cert %>% 
   dplyr::select(macro_maturity_code, histo_stage) -> SABL_macro_histo
@@ -138,7 +174,7 @@ write.csv(sabl_histo_v_macro_table, here("tables", "sablefish_table.csv"), row.n
 CNRY.mat <-read.csv(here("data", "2015_2017_ODFW_canary_maturity_reread.csv"))
 CNRY.mat <- clean_names(CNRY.mat)
 CNRY.cert<-subset(CNRY.mat,certainty==1) #subset only certain samples and those that were staged macroscopically#
-CNRY.cert <- clean_names(CNRY.cert)
+CNRY.cert <- subset(CNRY.cert, !(is.na(maturity_code)))
 
 # Move spent to stage 11 and resting/recovering/regenerating to stage 12
 CNRY.cert %>% 
@@ -161,6 +197,40 @@ CNRY.cert %>%
                                                                                          ifelse(x3 == "Y", "3",
                                                                                                 ifelse(x2 == "Y", "2",
                                                                                                        ifelse(x1 == "Y", "1", NA)))))))))))))) -> CNRY.cert
+
+
+# # Check accuracy by port sampler
+
+CNRY.cert %>%
+  mutate(bio_macro_agree = ifelse(biological_maturity == 0 & macro_maturity_code %in% c(1,2) | 
+                                    biological_maturity == 1 & macro_maturity_code %in% c(3,4,5,6,7,8), 1, 0)) -> CNRY_for_comp
+
+# Change biologist initials so that all are capitalized
+CNRY_for_comp %>% 
+  mutate(port_biologist_initials = toupper(port_biologist_initials)) -> CNRY_for_comp
+
+# Change JM to JSM
+CNRY_for_comp %>% 
+  mutate(port_biologist_initials = ifelse(port_biologist_initials == "JM", "JSM", port_biologist_initials)) -> CNRY_for_comp
+
+CNRY_for_comp %>% 
+  group_by(port_biologist_initials) %>% 
+  # count(port_biologist_initials)
+  summarise(n_correct = sum(bio_macro_agree)) -> CNRY_correct_by_biologist
+
+CNRY_for_comp %>% 
+  group_by(port_biologist_initials) %>% 
+  count(port_biologist_initials) -> CNRY_nstaged_by_biologist
+
+CNRY_correct_by_biologist %>% 
+  left_join(., CNRY_nstaged_by_biologist, by = "port_biologist_initials") %>% 
+  mutate(accuracy = n_correct/n) %>% 
+  left_join(., portbio_exp, by = "port_biologist_initials") %>% 
+  dplyr::select(-c(sabl_exp, arth_exp))-> CNRY_accuracy_by_biologist
+
+
+
+# Create table of individual stage comparisons
 
 CNRY.cert %>% 
   dplyr::select(macro_maturity_code, histo_stage) -> CNRY_macro_histo
@@ -278,6 +348,7 @@ write.csv(cnry_histo_v_macro_table, here("tables", "canary_table.csv"), row.name
 ARTH.mat<-read_excel(here("data", "2016_2017 ODFW Arrowtooth maturity reread.xlsx"))
 ARTH.cert<-subset(ARTH.mat,Certainty==1) #subset only certain samples and those that were staged macroscopically#
 ARTH.cert <- clean_names(ARTH.cert)
+ARTH.cert <- subset(ARTH.cert, !(is.na(maturity_code)))
 
 # Rename to stages 11 and 12
 ARTH.cert %>% 
@@ -301,6 +372,41 @@ ARTH.cert %>%
                                                                                                 ifelse(x3 == "Y", "3",
                                                                                                        ifelse(x2 == "Y", "2",
                                                                                                               ifelse(x1 == "Y", "1", NA))))))))))))) -> ARTH.cert
+
+# # Check accuracy by port sampler
+
+# Change "port_sampler" to "port_biologist_initials
+ARTH.cert %>%
+  dplyr::rename(port_biologist_initials = port_sampler) %>% 
+  mutate(bio_macro_agree = ifelse(biological_maturity == 0 & macro_maturity_code %in% c(1,2) | 
+                                    biological_maturity == 1 & macro_maturity_code %in% c(3,4,5,6,7,8), 1, 0)) -> ARTH_for_comp
+
+# Change biologist initials so that all are capitalized
+ARTH_for_comp %>% 
+  mutate(port_biologist_initials = toupper(port_biologist_initials)) -> ARTH_for_comp
+
+# Change JM to JSM
+ARTH_for_comp %>%
+  mutate(port_biologist_initials = ifelse(port_biologist_initials == "JM", "JSM", port_biologist_initials)) -> ARTH_for_comp
+
+ARTH_for_comp %>% 
+  group_by(port_biologist_initials) %>% 
+  # count(port_biologist_initials)
+  summarise(n_correct = sum(bio_macro_agree)) -> ARTH_correct_by_biologist
+
+ARTH_for_comp %>% 
+  group_by(port_biologist_initials) %>% 
+  count(port_biologist_initials) -> ARTH_nstaged_by_biologist
+
+ARTH_correct_by_biologist %>% 
+  left_join(., ARTH_nstaged_by_biologist, by = "port_biologist_initials") %>% 
+  mutate(accuracy = n_correct/n) %>% 
+  left_join(., portbio_exp, by = "port_biologist_initials") %>% 
+  dplyr::select(-c(sabl_exp, cnry_exp))-> ARTH_accuracy_by_biologist
+
+
+
+# Create table of individual stage comparisons
 
 ARTH.cert %>% 
   dplyr::select(macro_maturity_code, histo_stage) -> ARTH_macro_histo
@@ -424,4 +530,15 @@ arth_histo_v_macro_table %>%
 
 write.csv(arth_histo_v_macro_table, here("tables", "arrowtooth_table.csv"), row.names = FALSE)
 
+# Check accuracy for each species
+ARTH_accuracy_by_biologist
+CNRY_accuracy_by_biologist
+SABL_accuracy_by_biologist
 
+# Export tables - need to merge into one Excel file to share with Sheryl
+write.csv(ARTH_for_comp, here("tables", "for_sheryl", "arrowtooth_accuracy.csv"), row.names = FALSE)
+write.csv(CNRY_for_comp, here("tables", "for_sheryl", "canary_accuracy.csv"), row.names = FALSE)
+write.csv(SABL_for_comp, here("tables", "for_sheryl", "sablefish_accuracy.csv"), row.names = FALSE)
+write.csv(ARTH_accuracy_by_biologist, here("tables", "for_sheryl", "arrowtooth_accuracy_by_portbio.csv"), row.names = FALSE)
+write.csv(CNRY_accuracy_by_biologist, here("tables", "for_sheryl", "canary_accuracy_by_portbio.csv"), row.names = FALSE)
+write.csv(SABL_accuracy_by_biologist, here("tables", "for_sheryl", "sablefish_accuracy_by_portbio.csv"), row.names = FALSE)
