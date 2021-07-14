@@ -116,7 +116,7 @@ fun.SABL_mat = c(Lmat50.fun.SABL,con.fun.SABL)
 ###glm fit###
 
 fit.mat.glm.macro.SABL <- glm (maturity ~ 1 + length, data <-data.frame(length = SABL.cert$length_cm, maturity <- SABL.cert$macro_maturity),
-                               family = binomial(link ="logit"))
+family = binomial(link ="logit"))
 vector.macro.SABL = c(fit.mat.glm.macro.SABL$coefficients)
 
 # A_glm = intercept
@@ -148,13 +148,13 @@ macro.SABL_mat = c(Lmat50.macro.SABL,con.macro.SABL)
 # Change seq() to match length bins in data file
 
 # Biological maturity 
-bio_params_sablefish <- c(as.numeric(predict.glm(fit.mat.glm.bio.SABL,type=c("response"),newdata=data.frame(length=c(seq(12,80,2)))),row.names=FALSE))
+bio_params_sablefish <- c(as.numeric(predict.glm(fit.mat.glm.bio.SABL,type=c("response"),newdata=data.frame(length=c(seq(4,90,1)))),row.names=FALSE))
 
 # Functional maturity
-fun_params_sablefish <- c(as.numeric(predict.glm(fit.mat.glm.fun.SABL,type=c("response"),newdata=data.frame(length=c(seq(12,80,2)))),row.names=FALSE))
+fun_params_sablefish <- c(as.numeric(predict.glm(fit.mat.glm.fun.SABL,type=c("response"),newdata=data.frame(length=c(seq(4,90,1)))),row.names=FALSE))
 
 # Macroscopic maturity
-mac_params_sablefish <- c(as.numeric(predict.glm(fit.mat.glm.macro.SABL,type=c("response"),newdata=data.frame(length=c(seq(12,80,2)))),row.names=FALSE))
+mac_params_sablefish <- c(as.numeric(predict.glm(fit.mat.glm.macro.SABL,type=c("response"),newdata=data.frame(length=c(seq(4,90,1)))),row.names=FALSE))
 
 
 
@@ -433,13 +433,13 @@ macro.CNRY_mat = c(Lmat50.macro.CNRY,con.macro.CNRY)
 # Change seq() to match length bins in data file
 
 # Biological maturity 
-bio_params_canary <- c(as.numeric(predict.glm(fit.mat.glm.bio.CNRY,type=c("response"),newdata=data.frame(length=c(seq(12,80,2)))),row.names=FALSE))
+bio_params_canary <- c(as.numeric(predict.glm(fit.mat.glm.bio.CNRY,type=c("response"),newdata=data.frame(length=c(seq(8,66,2)))),row.names=FALSE))
 
 # Functional maturity
-fun_params_canary <- c(as.numeric(predict.glm(fit.mat.glm.fun.CNRY,type=c("response"),newdata=data.frame(length=c(seq(12,80,2)))),row.names=FALSE))
+fun_params_canary <- c(as.numeric(predict.glm(fit.mat.glm.fun.CNRY,type=c("response"),newdata=data.frame(length=c(seq(8,66,2)))),row.names=FALSE))
 
 # Macroscopic maturity
-mac_params_canary <- c(as.numeric(predict.glm(fit.mat.glm.macro.CNRY,type=c("response"),newdata=data.frame(length=c(seq(12,80,2)))),row.names=FALSE))
+mac_params_canary <- c(as.numeric(predict.glm(fit.mat.glm.macro.CNRY,type=c("response"),newdata=data.frame(length=c(seq(8,66,2)))),row.names=FALSE))
 
 
 
@@ -939,6 +939,40 @@ lines(35:75, 1/(1+(exp(-(A_glm.macro.SABL+(B_glm.macro.SABL*(35:75)))))), type =
 lines(35:75, 1/(1+(exp(-(A_glm.bio.SABL+(B_glm.bio.SABL*(35:75)))))), type = "l", col="#377eb8", pch = 19, lty =1,lwd = 3)# bio
 lines(35:75, 1/(1+(exp(-(A_glm.fun.SABL+(B_glm.fun.SABL*(35:75)))))), type = "l", col="#4daf4a", pch = 19, lty =1,lwd = 3)# fun
 
+############# Check manually - macro only
+par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
+plot(0, type ='n', xlim=c(35,75),ylim=c(-0.01,1.1),xlab="length_cm (cm)",ylab="Proportion mature", cex.lab = 2.4, cex.axis = 1.8)
+points(x = bin_macro.SABL, y = prop_macro.SABL,cex=sqrt(n_macro.SABL), pch=16, col = "#984ea3") # macro
+# Plot explicitly according to logistic formula
+lines(35:75, 1/(1+(exp(-(A_glm.macro.SABL+(B_glm.macro.SABL*(35:75)))))), type = "l", col="#984ea3", pch = 19, lty =1,lwd = 3)# Macro
+
+# Plot using predict function
+predat.1 <- predict(fit.mat.glm.macro.SABL,newdata=plotdat, se.fit=TRUE, type = "link")
+
+with(predat.1, lines(35:75,exp(fit)/(1+exp(fit)),lty=2,col="red"))
+with(predat.1, lines(35:75,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="red"))
+with(predat.1, lines(35:75,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="red"))
+# Try converting standard error to standard deviation, re-plotting
+# with(predat.1, lines(35:75,exp(fit+1.96*se.fit*sqrt(n))/(1+exp(fit+1.96*se.fit*sqrt(n))),lty=2,col="orange"))
+# with(predat.1, lines(35:75,exp(fit-1.96*se.fit*sqrt(n))/(1+exp(fit-1.96*se.fit*sqrt(n))),lty=2,col="orange"))
+
+
+# now plot L50 with confidence intervals
+points(x = macro.SABL_mat[1], y = 0.5)
+points(x = macro.SABL_mat[1] + macro.SABL_mat[2], y = 0.5)
+points(x = macro.SABL_mat[1] - macro.SABL_mat[2], y = 0.5)
+
+# Try again, using confidence intervals
+# predat.2 <- predict.glm(fit.mat.glm.macro.SABL,newdata=plotdat, interval = "confidence")
+# predat.2 <- predict.glm(fit.mat.glm.macro.SABL,newdata=plotdat, interval = "prediction")
+
+############ end check
+
+
+
+
+
+
 # GLM Confidence Bands #
 
 plotdat <- data.frame(length=(35:75))
@@ -1057,29 +1091,29 @@ SA_params_list <- list()
 ### Store canary
 
 # Canary Biological
-SA_params_list[[1]] <- "Canary rockfish: Biological Maturity length-maturity. Lengths: seq(12,80,2)"
+SA_params_list[[1]] <- "Canary rockfish: Biological Maturity length-maturity. Lengths: seq(8,66,2)"
 SA_params_list[[2]] <- bio_params_canary 
 
 # Canary Functional
-SA_params_list[[3]] <- "Canary rockfish: Functional Maturity length-maturity. Lengths: seq(12,80,2)"
+SA_params_list[[3]] <- "Canary rockfish: Functional Maturity length-maturity. Lengths: seq(8,66,2)"
 SA_params_list[[4]] <- fun_params_canary 
 
 # Canary Macroscopic
-SA_params_list[[5]] <- "Canary rockfish: Macroscopic Maturity length-maturity. Lengths: seq(12,80,2)"
+SA_params_list[[5]] <- "Canary rockfish: Macroscopic Maturity length-maturity. Lengths: seq(8,66,2)"
 SA_params_list[[6]] <- mac_params_canary 
 
 ### Store sablefish
 
 # Sablefish Biological
-SA_params_list[[7]] <- "Sablefish: Biological Maturity length-maturity. Lengths: seq(12,80,2)"
+SA_params_list[[7]] <- "Sablefish: Biological Maturity length-maturity. Lengths: seq(4,90,1)"
 SA_params_list[[8]] <- bio_params_sablefish 
 
 # Sablefish Functional
-SA_params_list[[9]] <- "Sablefish: Functional Maturity length-maturity. Lengths: seq(12,80,2)"
+SA_params_list[[9]] <- "Sablefish: Functional Maturity length-maturity. Lengths: seq(4,90,1)"
 SA_params_list[[10]] <- fun_params_sablefish 
 
 # Sablefish Macroscopic
-SA_params_list[[11]] <- "Sablefish: Macroscopic Maturity length-maturity. Lengths: seq(12,80,2)"
+SA_params_list[[11]] <- "Sablefish: Macroscopic Maturity length-maturity. Lengths: seq(4,90,1)"
 SA_params_list[[12]] <- mac_params_sablefish 
 
 
