@@ -1,0 +1,6 @@
+"port_biologist_initials","n_correct","n","accuracy","arth_exp"
+"CG",9,12,0.75,"10+ years"
+"CR",5,5,1,"<1 year"
+"JSM",26,27,0.962962962962963,"10+ years"
+"KL",31,34,0.911764705882353,"2 years"
+"SF",29,33,0.878787878787879,"10+ years"
