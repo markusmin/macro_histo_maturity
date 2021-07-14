@@ -53,6 +53,19 @@ fig_dir <- here("figures")
 # Plot changing maturity code usage over time
 Maturity code usage by ODFW port samplers has changed over time.
 
+
+```{r create_color_scale}
+fig4_color_scale = c("1: Immature" = "#4E79A7",  
+                     "2: Maturing" = "#F28E2B", 
+                     "3: Vitellogenesis" = "#E15759",
+                     "4: Fertilized" = "#76B7B2",
+                     "5: Ripe" = "#59A14F", 
+                     "6: Spent" = "#EDC948",
+                     "7: Resting" = "#B07AA1", 
+                     "8: Mature" = "#BAB0AC")
+```
+
+
 ```{r prepare_data_for_plot}
 cnry_f_spwn <- subset(cnry_hist, sample_month >= 11 | sample_month <= 3 & sex == "F")
 
@@ -96,7 +109,7 @@ sabl_f_spwn %>%
 ```{r cnry_maturity_code_usage_barplot}
 cnry_code_plot <- ggplot(cnry_f_mat_codes, aes(x = sample_year, y = n, fill = Stage))+
   geom_bar(stat = "identity")+
-  scale_fill_tableau(palette = "Tableau 10")+
+  scale_fill_manual(values = fig4_color_scale) +
   xlab("Year")+
   ylab("Number of Samples")+
   theme(axis.text = element_text(size = 15),
@@ -123,7 +136,7 @@ ggsave(paste0(fig_dir, "/fig4_cnry_v2.eps"), cnry_code_plot, height = 7, width =
 ```{r sabl_maturity_code_usage_barplot}
 sabl_code_plot <- ggplot(sabl_f_mat_codes, aes(x = sample_year, y = n, fill = Stage))+
   geom_bar(stat = "identity")+
-  scale_fill_tableau(palette = "Tableau 10")+
+  scale_fill_manual(values = fig4_color_scale) +
   xlab("Year")+
   ylab("Number of Samples")+
   theme(axis.text = element_text(size = 15),
