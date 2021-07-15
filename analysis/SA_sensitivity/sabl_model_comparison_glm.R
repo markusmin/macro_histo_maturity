@@ -29,6 +29,10 @@ spbio_comp_sabl %>%
   mutate(., macro_v_fun = macro/fun) %>% 
   mutate(., macro_v_ref = macro/ref) -> spbio_comp_sabl
 
+# Compare biological and functional
+spbio_comp_sabl %>% 
+  mutate(., fun_v_bio = fun/bio) -> spbio_comp_sabl
+
 # compare in 2015
 subset(spbio_comp_sabl, year == 2015)
 

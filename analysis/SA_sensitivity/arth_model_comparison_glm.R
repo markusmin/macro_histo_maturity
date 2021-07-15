@@ -24,6 +24,10 @@ spbio_comp_arth %>%
   mutate(., macro_v_fun = macro/fun) %>% 
   mutate(., macro_v_ref = macro/ref) -> spbio_comp_arth
 
+# Compare biological and functional
+spbio_comp_arth %>% 
+  mutate(., fun_v_bio = fun/bio) -> spbio_comp_arth
+
 # compare in 2015
 subset(spbio_comp_arth, year == 2015)
 
