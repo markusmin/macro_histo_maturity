@@ -165,7 +165,31 @@ sabl_histo_v_macro_table %>%
                                                                  ifelse(macro_code == "6", 100-sum(sabl_histo_v_macro_table[6,13])/sum(sabl_histo_v_macro_table[6,2:14])*100,
                                                                         ifelse(macro_code == "7", 100-sum(sabl_histo_v_macro_table[7,14])/sum(sabl_histo_v_macro_table[7,2:14])*100, NA)))))))) -> sabl_histo_v_macro_table
 
+#### Add column for N at each stage
+sabl_histo_v_macro_table %>% 
+  rowwise() %>% 
+  mutate(N = sum(histo_1, histo_2, histo_3, histo_4_1, histo_4_2, histo_5, histo_6, histo_7, histo_8, histo_9, histo_10, histo_11, histo_12)) -> sabl_histo_v_macro_table
+
+
+
+#### Calculate overall misclassification rates
+sabl_binary_overall_disagree <- sum(sabl_histo_v_macro_table$N*sabl_histo_v_macro_table$binary_disagree/100, na.rm = TRUE)/sum(sabl_histo_v_macro_table$N, na.rm = TRUE)
+sabl_specific_overall_disagree <- sum(sabl_histo_v_macro_table$N*sabl_histo_v_macro_table$specific_stage_disagree/100, na.rm = TRUE)/sum(sabl_histo_v_macro_table$N, na.rm = TRUE)
+
+# Add a summary row
+sabl_histo_v_macro_table %>% 
+  bind_rows(., data.frame(macro_code = "Total", binary_disagree = c(round(sabl_binary_overall_disagree*100,1)), 
+                          specific_stage_disagree = c(round(sabl_specific_overall_disagree*100,1)),
+                          N = sum(sabl_histo_v_macro_table$N, na.rm = TRUE))) -> sabl_histo_v_macro_table
+
+#### Round columns
+sabl_histo_v_macro_table %>% 
+  mutate(., specific_stage_disagree = round(specific_stage_disagree, 1)) %>% 
+  mutate(., binary_disagree = round(binary_disagree, 1)) -> sabl_histo_v_macro_table
+
+# Export
 write.csv(sabl_histo_v_macro_table, here("tables", "sablefish_table.csv"), row.names = FALSE)
+
 
 
 #####----Canary rockfish----####
@@ -306,7 +330,6 @@ cnry_histo_v_macro_table[is.na(cnry_histo_v_macro_table)] <- 0
 cnry_histo_v_macro_table[6,13] <- 1
 cnry_histo_v_macro_table[6,14] <- 0
 
-
 #### Calculate percentage of disagreement for binary maturity
 
 # For immature stages: 100-sum(cnry_histo_v_macro_table[i,2:4])/sum(cnry_histo_v_macro_table[i,2:ncol(cnry_histo_v_macro_table)])*100
@@ -339,6 +362,30 @@ cnry_histo_v_macro_table %>%
                                                                          ifelse(macro_code == "6", 100-sum(cnry_histo_v_macro_table[6,13])/sum(cnry_histo_v_macro_table[6,2:14])*100,
                                                                                 ifelse(macro_code == "7", 100-sum(cnry_histo_v_macro_table[7,14])/sum(cnry_histo_v_macro_table[7,2:14])*100, NA)))))))) -> cnry_histo_v_macro_table
 
+#### Round columns
+cnry_histo_v_macro_table %>% 
+  mutate(., specific_stage_disagree = round(specific_stage_disagree, 1)) %>% 
+  mutate(., binary_disagree = round(binary_disagree, 1)) -> cnry_histo_v_macro_table
+
+
+#### Add column for N at each stage
+cnry_histo_v_macro_table %>% 
+  rowwise() %>% 
+  mutate(N = sum(histo_1, histo_2, histo_3, histo_4_1, histo_4_2, histo_5, histo_6, histo_7, histo_8, histo_9, histo_10, histo_11, histo_12)) -> cnry_histo_v_macro_table
+
+
+
+#### Calculate overall misclassification rates
+cnry_binary_overall_disagree <- sum(cnry_histo_v_macro_table$N*cnry_histo_v_macro_table$binary_disagree/100, na.rm = TRUE)/sum(cnry_histo_v_macro_table$N, na.rm = TRUE)
+cnry_specific_overall_disagree <- sum(cnry_histo_v_macro_table$N*cnry_histo_v_macro_table$specific_stage_disagree/100, na.rm = TRUE)/sum(cnry_histo_v_macro_table$N, na.rm = TRUE)
+
+# Add a summary row
+cnry_histo_v_macro_table %>% 
+  bind_rows(., data.frame(macro_code = "Total", binary_disagree = c(round(cnry_binary_overall_disagree*100,1)), 
+                      specific_stage_disagree = c(round(cnry_specific_overall_disagree*100,1)),
+                      N = sum(cnry_histo_v_macro_table$N, na.rm = TRUE))) -> cnry_histo_v_macro_table
+
+# Export
 write.csv(cnry_histo_v_macro_table, here("tables", "canary_table.csv"), row.names = FALSE)
 
 
@@ -515,19 +562,41 @@ arth_histo_v_macro_table %>%
 # Some confusion with how stages match up, since we have overlap. Check with Melissa.
 arth_histo_v_macro_table %>% 
   mutate(., specific_stage_disagree = ifelse(macro_code == "1", 100-sum(arth_histo_v_macro_table[1,2:4])/sum(arth_histo_v_macro_table[1,2:14])*100,
+                                             # this line is irrelevant because code 2 isn't used for arrowtooth anymore
                                              ifelse(macro_code == "2", 100-sum(arth_histo_v_macro_table[2,2:4])/sum(arth_histo_v_macro_table[2,2:14])*100,
-                                                    # This corresponds to stages 4.1, 4.2, and 5. Some confusion about what this should actually be, given that in the tables it's 4.1-7, but 6 and 7 overlap with stage 4.
+                                                    # This corresponds to stages 4.1, 4.2, and 5. 
                                                     ifelse(macro_code == "3", 100-sum(arth_histo_v_macro_table[3,5:7])/sum(arth_histo_v_macro_table[3,2:14])*100,
-                                                           # This corresponds to stages 6-8. Again, some confusion, need to double check.
-                                                           ifelse(macro_code == "4", 100-sum(arth_histo_v_macro_table[4,8:10])/sum(arth_histo_v_macro_table[4,2:14])*100,
-                                                                  # corresponds to stages 9 and 10.
-                                                                  ifelse(macro_code == "5", 100-sum(arth_histo_v_macro_table[5,11:12])/sum(arth_histo_v_macro_table[5,2:14])*100,
+                                                           # This corresponds to stages 6 and 7. 
+                                                           ifelse(macro_code == "4", 100-sum(arth_histo_v_macro_table[4,8:9])/sum(arth_histo_v_macro_table[4,2:14])*100,
+                                                                  # corresponds to stages 8, and 9 (10 is only for rockfish, since it's eyed larvae)
+                                                                  ifelse(macro_code == "5", 100-sum(arth_histo_v_macro_table[5,10:11])/sum(arth_histo_v_macro_table[5,2:14])*100,
                                                                          # Code guide has been updated so that 11 is spent and 12 is resting/recovering
                                                                          ifelse(macro_code == "6", 100-sum(arth_histo_v_macro_table[6,13])/sum(arth_histo_v_macro_table[6,2:14])*100,
                                                                                 ifelse(macro_code == "7", 100-sum(arth_histo_v_macro_table[7,14])/sum(arth_histo_v_macro_table[7,2:14])*100, NA)))))))) -> arth_histo_v_macro_table
 
-# Remove code 2 since it isn't used anymore
+#### Round columns
+arth_histo_v_macro_table %>% 
+  mutate(., specific_stage_disagree = round(specific_stage_disagree, 1)) %>% 
+  mutate(., binary_disagree = round(binary_disagree, 1)) -> arth_histo_v_macro_table
 
+#### Add column for N at each stage
+arth_histo_v_macro_table %>% 
+  rowwise() %>% 
+  mutate(N = sum(histo_1, histo_2, histo_3, histo_4_1, histo_4_2, histo_5, histo_6, histo_7, histo_8, histo_9, histo_10, histo_11, histo_12)) -> arth_histo_v_macro_table
+
+
+
+#### Calculate overall misclassification rates
+arth_binary_overall_disagree <- sum(arth_histo_v_macro_table$N*arth_histo_v_macro_table$binary_disagree/100, na.rm = TRUE)/sum(arth_histo_v_macro_table$N, na.rm = TRUE)
+arth_specific_overall_disagree <- sum(arth_histo_v_macro_table$N*arth_histo_v_macro_table$specific_stage_disagree/100, na.rm = TRUE)/sum(arth_histo_v_macro_table$N, na.rm = TRUE)
+
+# Add a summary row
+arth_histo_v_macro_table %>% 
+  bind_rows(., data.frame(macro_code = "Total", binary_disagree = c(round(arth_binary_overall_disagree*100,1)), 
+                          specific_stage_disagree = c(round(arth_specific_overall_disagree*100,1)),
+                          N = sum(arth_histo_v_macro_table$N, na.rm = TRUE))) -> arth_histo_v_macro_table
+
+# Export
 write.csv(arth_histo_v_macro_table, here("tables", "arrowtooth_table.csv"), row.names = FALSE)
 
 # Check accuracy for each species
