@@ -871,7 +871,7 @@ arrowtooth_maturity_results$Lmat50 <- round(arrowtooth_maturity_results$Lmat50, 
 ##--Create combined logistic maturity curve plot----------------------------------------------------------
 
 setEPS()
-postscript(here("figures", "Fig1_v3.eps"), height = 8, width = 24)
+postscript(here("figures", "Fig2.eps"), height = 8, width = 24)
 par(mfrow = c(1,3), xpd=TRUE,mar = c("bottom" = 1, "left" = 1, "top" = 1, "right" = 1))
 
 ###### Plot CNRY ######
@@ -939,34 +939,34 @@ lines(35:75, 1/(1+(exp(-(A_glm.macro.SABL+(B_glm.macro.SABL*(35:75)))))), type =
 lines(35:75, 1/(1+(exp(-(A_glm.bio.SABL+(B_glm.bio.SABL*(35:75)))))), type = "l", col="#377eb8", pch = 19, lty =1,lwd = 3)# bio
 lines(35:75, 1/(1+(exp(-(A_glm.fun.SABL+(B_glm.fun.SABL*(35:75)))))), type = "l", col="#4daf4a", pch = 19, lty =1,lwd = 3)# fun
 
-############# Check manually - macro only
-par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
-plot(0, type ='n', xlim=c(35,75),ylim=c(-0.01,1.1),xlab="length_cm (cm)",ylab="Proportion mature", cex.lab = 2.4, cex.axis = 1.8)
-points(x = bin_macro.SABL, y = prop_macro.SABL,cex=sqrt(n_macro.SABL), pch=16, col = "#984ea3") # macro
-# Plot explicitly according to logistic formula
-lines(35:75, 1/(1+(exp(-(A_glm.macro.SABL+(B_glm.macro.SABL*(35:75)))))), type = "l", col="#984ea3", pch = 19, lty =1,lwd = 3)# Macro
-
-# Plot using predict function
-predat.1 <- predict(fit.mat.glm.macro.SABL,newdata=plotdat, se.fit=TRUE, type = "link")
-
-with(predat.1, lines(35:75,exp(fit)/(1+exp(fit)),lty=2,col="red"))
-with(predat.1, lines(35:75,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="red"))
-with(predat.1, lines(35:75,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="red"))
-# Try converting standard error to standard deviation, re-plotting
-# with(predat.1, lines(35:75,exp(fit+1.96*se.fit*sqrt(n))/(1+exp(fit+1.96*se.fit*sqrt(n))),lty=2,col="orange"))
-# with(predat.1, lines(35:75,exp(fit-1.96*se.fit*sqrt(n))/(1+exp(fit-1.96*se.fit*sqrt(n))),lty=2,col="orange"))
-
-
-# now plot L50 with confidence intervals
-points(x = macro.SABL_mat[1], y = 0.5)
-points(x = macro.SABL_mat[1] + macro.SABL_mat[2], y = 0.5)
-points(x = macro.SABL_mat[1] - macro.SABL_mat[2], y = 0.5)
-
-# Try again, using confidence intervals
-# predat.2 <- predict.glm(fit.mat.glm.macro.SABL,newdata=plotdat, interval = "confidence")
-# predat.2 <- predict.glm(fit.mat.glm.macro.SABL,newdata=plotdat, interval = "prediction")
-
-############ end check
+# ############# Check manually - macro only
+# par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
+# plot(0, type ='n', xlim=c(35,75),ylim=c(-0.01,1.1),xlab="length_cm (cm)",ylab="Proportion mature", cex.lab = 2.4, cex.axis = 1.8)
+# points(x = bin_macro.SABL, y = prop_macro.SABL,cex=sqrt(n_macro.SABL), pch=16, col = "#984ea3") # macro
+# # Plot explicitly according to logistic formula
+# lines(35:75, 1/(1+(exp(-(A_glm.macro.SABL+(B_glm.macro.SABL*(35:75)))))), type = "l", col="#984ea3", pch = 19, lty =1,lwd = 3)# Macro
+# 
+# # Plot using predict function
+# predat.1 <- predict(fit.mat.glm.macro.SABL,newdata=plotdat, se.fit=TRUE, type = "link")
+# 
+# with(predat.1, lines(35:75,exp(fit)/(1+exp(fit)),lty=2,col="red"))
+# with(predat.1, lines(35:75,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="red"))
+# with(predat.1, lines(35:75,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="red"))
+# # Try converting standard error to standard deviation, re-plotting
+# # with(predat.1, lines(35:75,exp(fit+1.96*se.fit*sqrt(n))/(1+exp(fit+1.96*se.fit*sqrt(n))),lty=2,col="orange"))
+# # with(predat.1, lines(35:75,exp(fit-1.96*se.fit*sqrt(n))/(1+exp(fit-1.96*se.fit*sqrt(n))),lty=2,col="orange"))
+# 
+# 
+# # now plot L50 with confidence intervals
+# points(x = macro.SABL_mat[1], y = 0.5)
+# points(x = macro.SABL_mat[1] + macro.SABL_mat[2], y = 0.5)
+# points(x = macro.SABL_mat[1] - macro.SABL_mat[2], y = 0.5)
+# 
+# # Try again, using confidence intervals
+# # predat.2 <- predict.glm(fit.mat.glm.macro.SABL,newdata=plotdat, interval = "confidence")
+# # predat.2 <- predict.glm(fit.mat.glm.macro.SABL,newdata=plotdat, interval = "prediction")
+# 
+# ############ end check
 
 
 
