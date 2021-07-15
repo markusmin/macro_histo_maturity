@@ -46,6 +46,9 @@ sabl_hist %>%
   subset(!(is.na(length_cm))) %>% 
   subset(!(is.na(macro_maturity))) -> sabl_hist
 
+# There is one individual that is clearly misclassified in 2001 - an age 1, mature fish at 44 cm. Sablefish never mature that young or that small.
+sabl_hist <- subset(sabl_hist, !(sample_no == "OR010846" & fish_length == 440 & age1 == "1"))
+
 # Set figure directory
 fig_dir <- here("figures")
 ```
@@ -55,7 +58,7 @@ Maturity code usage by ODFW port samplers has changed over time.
 
 
 ```{r create_color_scale}
-fig4_color_scale = c("1: Immature" = "#4E79A7",  
+fig1_color_scale = c("1: Immature" = "#4E79A7",  
                      "2: Maturing" = "#F28E2B", 
                      "3: Vitellogenesis" = "#E15759",
                      "4: Fertilized" = "#76B7B2",
@@ -109,7 +112,7 @@ sabl_f_spwn %>%
 ```{r cnry_maturity_code_usage_barplot}
 cnry_code_plot <- ggplot(cnry_f_mat_codes, aes(x = sample_year, y = n, fill = Stage))+
   geom_bar(stat = "identity")+
-  scale_fill_manual(values = fig4_color_scale) +
+  scale_fill_manual(values = fig1_color_scale) +
   xlab("Year")+
   ylab("Number of Samples")+
   theme(axis.text = element_text(size = 15),
@@ -127,7 +130,7 @@ cnry_code_plot <- ggplot(cnry_f_mat_codes, aes(x = sample_year, y = n, fill = St
 
 cnry_code_plot 
 
-ggsave(paste0(fig_dir, "/fig4_cnry_v2.eps"), cnry_code_plot, height = 7, width = 12)
+ggsave(paste0(fig_dir, "/Fig1_cnry.eps"), cnry_code_plot, height = 7, width = 12)
 ```
 
 
@@ -154,14 +157,14 @@ sabl_code_plot <- ggplot(sabl_f_mat_codes, aes(x = sample_year, y = n, fill = St
 
 sabl_code_plot 
 
-ggsave(paste0(fig_dir, "/fig4_sabl_v2.eps"), sabl_code_plot, height = 7, width = 12)
+ggsave(paste0(fig_dir, "/Fig1_sabl.eps"), sabl_code_plot, height = 7, width = 12)
 ```
 
 ```{r combine_sabl_cnry_for_manuscript}
 fig4 <- ggarrange(cnry_code_plot, sabl_code_plot, ncol = 1, nrow = 2, labels = c("(a)", "(b)"), 
                   label.x = 0.9, label.y = 0.975, font.label = list(size = 35, face = "plain", color = "black"))
 
-ggsave(paste0(fig_dir, "/fig4_v2.eps"), fig4, height = 14, width = 12)
+ggsave(paste0(fig_dir, "/Fig1.eps"), fig4, height = 14, width = 12)
 ```
 
 
@@ -1416,6 +1419,56 @@ sabl_spwn_no70immature_no7no8_07_18_mat = c(Lmat50.sabl_spwn_no70immature_no7no8
 
 
 
+
+### Spawning season, no 7s no 8s and no fish >= 70 cm that are immature. 1997-1998 ENSO REMOVED
+```{r fit_glm_sabl_no7no8_no70immature_ENSO_sensitivity}
+### Subset data
+sabl_f_spwn_no70immature_no7no8_95_01 %>% 
+  subset(., !(sample_year == 1998 & sample_month %in% c(1,2))) -> sabl_f_spwn_no70immature_no7no8_95_01_noENSO
+
+table(sabl_f_spwn_no70immature_no7no8_95_01$macro_maturity, sabl_f_spwn_no70immature_no7no8_95_01$fork_length)
+table(sabl_f_spwn_no70immature_no7no8_95_01_noENSO$macro_maturity, sabl_f_spwn_no70immature_no7no8_95_01_noENSO$fork_length)
+
+### 1995-2001, no ENSO ###
+fit.mat.glm.sabl_spwn_no70immature_no7no8_95_01_noENSO <- glm(maturity ~ 1 + length, data <-data.frame(length = sabl_f_spwn_no70immature_no7no8_95_01_noENSO$length_cm, maturity <- sabl_f_spwn_no70immature_no7no8_95_01_noENSO$macro_maturity),
+                                                       family = binomial(link ="logit"))
+vector.sabl_spwn_no70immature_no7no8_95_01_noENSO = c(fit.mat.glm.sabl_spwn_no70immature_no7no8_95_01_noENSO$coefficients)
+
+# A_glm = intercept
+# B_glm = slope
+
+A_glm.sabl_spwn_no70immature_no7no8_95_01_noENSO <- vector.sabl_spwn_no70immature_no7no8_95_01_noENSO[1] 
+B_glm.sabl_spwn_no70immature_no7no8_95_01_noENSO <- vector.sabl_spwn_no70immature_no7no8_95_01_noENSO[2]
+Lmat50.sabl_spwn_no70immature_no7no8_95_01_noENSO = -(A_glm.sabl_spwn_no70immature_no7no8_95_01_noENSO/B_glm.sabl_spwn_no70immature_no7no8_95_01_noENSO)
+Lmat50.sabl_spwn_no70immature_no7no8_95_01_noENSO
+
+cor(sabl_f_spwn_no70immature_no7no8_95_01_noENSO$length_cm, sabl_f_spwn_no70immature_no7no8_95_01_noENSO$macro_maturity)
+
+sA.sabl_spwn_no70immature_no7no8_95_01_noENSO <- summary (fit.mat.glm.sabl_spwn_no70immature_no7no8_95_01_noENSO)$coef[1,2] 
+sB.sabl_spwn_no70immature_no7no8_95_01_noENSO <- summary (fit.mat.glm.sabl_spwn_no70immature_no7no8_95_01_noENSO)$coef[2,2]    
+r.sabl_spwn_no70immature_no7no8_95_01_noENSO <-cor(sabl_f_spwn_no70immature_no7no8_95_01_noENSO$length_cm, sabl_f_spwn_no70immature_no7no8_95_01_noENSO$macro_maturity)
+n.1 <- length(sabl_f_spwn_no70immature_no7no8_95_01_noENSO$length_cm)
+
+#Variance estimator
+deltamethod.sabl_spwn_no70immature_no7no8_95_01_noENSO <- ((sA.sabl_spwn_no70immature_no7no8_95_01_noENSO^2)/(B_glm.sabl_spwn_no70immature_no7no8_95_01_noENSO^2))- ((2*A_glm.sabl_spwn_no70immature_no7no8_95_01_noENSO*sA.sabl_spwn_no70immature_no7no8_95_01_noENSO*sB.sabl_spwn_no70immature_no7no8_95_01_noENSO*r.sabl_spwn_no70immature_no7no8_95_01_noENSO)/(B_glm.sabl_spwn_no70immature_no7no8_95_01_noENSO^3))+ (((A_glm.sabl_spwn_no70immature_no7no8_95_01_noENSO^2)*(sB.sabl_spwn_no70immature_no7no8_95_01_noENSO^2))/(B_glm.sabl_spwn_no70immature_no7no8_95_01_noENSO^4))
+deltamethod.sabl_spwn_no70immature_no7no8_95_01_noENSO
+
+## 95% Confidence Interval equation
+
+con.sabl_spwn_no70immature_no7no8_95_01_noENSO <- 1.96*(sqrt(deltamethod.sabl_spwn_no70immature_no7no8_95_01_noENSO)/sqrt(n.1))
+sabl_spwn_no70immature_no7no8_95_01_noENSO_mat <- c(Lmat50.sabl_spwn_no70immature_no7no8_95_01_noENSO,con.sabl_spwn_no70immature_no7no8_95_01_noENSO)
+
+sabl_spwn_no70immature_no7no8_95_01_mat
+sabl_spwn_no70immature_no7no8_95_01_noENSO_mat
+```
+
+
+
+
+
+
+
+
 # Store sensitivity analyes in a table (supplemental table)
 
 ### Canary rockfish, 1980-1984
@@ -1502,8 +1555,8 @@ cnry_10_18_glm_results$spawning_season_isolated <- c("No", "No", "Yes", "Yes")
 cnry_80_84_glm_results %>% 
   bind_rows(., cnry_10_18_glm_results) -> cnry_hist_sensitivity_table
 
-# Reorder columns for table, remove some (columns 1 and 3, which are the names of the files and the plusminusCI95)
-cnry_hist_sensitivity_table_forexport <- cnry_hist_sensitivity_table[,c(4, 9, 10, 8, 2, 5, 6, 7)]
+# Reorder columns for table, remove column 1, which is the name of the file
+cnry_hist_sensitivity_table_forexport <- cnry_hist_sensitivity_table[,c(4, 9, 10, 8, 2, 3, 5, 6, 7)]
 
 write.csv(cnry_hist_sensitivity_table_forexport, here("tables", "canary_historical_sensitivity_table.csv"), row.names = FALSE)
 ```
@@ -1597,8 +1650,8 @@ sabl_f_07_18_glm_results$immature_70cm_plus_removed <- c("No", "Yes", "Yes", "Ye
 sabl_f_95_01_glm_results %>% 
   bind_rows(., sabl_f_07_18_glm_results) -> sabl_hist_sensitivity_table
 
-# Reorder columns for table, remove some (columns 1 and 3, which are the names of the files and the plusminusCI95)
-sabl_hist_sensitivity_table_forexport <- sabl_hist_sensitivity_table[,c(4, 9, 10, 11, 8, 2, 5, 6, 7)]
+# Reorder columns for table, remove column 1, which is the name of the file
+sabl_hist_sensitivity_table_forexport <- sabl_hist_sensitivity_table[,c(4, 9, 10, 11, 8, 2, 3, 5, 6, 7)]
 
 write.csv(sabl_hist_sensitivity_table_forexport, here("tables", "sablefish_historical_sensitivity_table.csv"), row.names = FALSE)
 ```
@@ -1830,7 +1883,7 @@ dev.off()
 
 
 
-### FIG 2: Spawning season, no 7s and no 8s
+### FIG 3: Spawning season, no 7s and no 8s
 ```{r get_parameters_for_plot_cnry_spwn_no7no8}
 # 1980-1984
 bin_cnry_spwn_no7no8_80_84 <- cnry_prop_mature_f_spwn_no7no8_80_84$length_cm
@@ -1868,6 +1921,61 @@ B_glm.cnry_spwn_no7no8_10_18 = df.fit.mat.glm.cnry_spwn_no7no8_10_18$coefficient
 ### CREATE PLOT
 setEPS()
 postscript(here("figures", "historical_sensitivity_analysis", "cnry_spwn_no7no8_histcomp.eps"), height = 8, width = 8)
+
+par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
+plot(0, type ='n', xlim=c(20,70),ylim=c(-0.01,1.1),xlab="Length (cm)",ylab="Proportion mature", cex.lab = 1.6, cex.axis = 1.3)
+
+# points(x = bin_m.2, y = prop_m.2,cex=0.7*sqrt(n_m.2), pch=16, col = rgb(0,0,1,0.2))
+points(x = bin_cnry_spwn_no7no8_80_84, y = prop_cnry_spwn_no7no8_80_84,cex=0.7*sqrt(n_cnry_spwn_no7no8_80_84), pch=16, col = "#f4a582")
+points(x = bin_cnry_spwn_no7no8_10_18, y = prop_cnry_spwn_no7no8_10_18,cex=0.7*sqrt(n_cnry_spwn_no7no8_10_18), pch=16, col = "#92c5de")
+# points(x = bin_cnry_spwn_no7no8_98_03, y = prop_cnry_spwn_no7no8_98_03,cex=0.7*sqrt(n_cnry_spwn_no7no8_98_03), pch=16, col = "#fdbf6f")
+
+
+lines(20:70, 1/(1+(exp(-(A_glm.cnry_spwn_no7no8_80_84+(B_glm.cnry_spwn_no7no8_80_84*(20:70)))))), type = "l", col='#b2182b', pch = 19, lty =1,lwd = 3)####Time Period 1#####
+lines(20:70, 1/(1+(exp(-(A_glm.cnry_spwn_no7no8_10_18+(B_glm.cnry_spwn_no7no8_10_18*(20:70)))))), type = "l", col='#2166ac', pch = 19, lty =1,lwd = 3)####Time Period 2#####
+# lines(20:70, 1/(1+(exp(-(A_glm.cnry_spwn_no7no8_98_03+(B_glm.cnry_spwn_no7no8_98_03*(20:70)))))), type = "l", col='#ff7f00', pch = 19, lty =1,lwd = 3)####Time Period 3#####
+
+# GLM Confidence Bands #
+
+plotdat <- data.frame(length=(20:70))
+predat_cnry_spwn_no7no8_80_84 <- predict(fit.mat.glm.cnry_spwn_no7no8_80_84,newdata=plotdat, se.fit=TRUE)
+with(predat_cnry_spwn_no7no8_80_84, lines(20:70,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#b2182b"))
+with(predat_cnry_spwn_no7no8_80_84, lines(20:70,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#b2182b"))
+
+predat_cnry_spwn_no7no8_10_18 <- predict(fit.mat.glm.cnry_spwn_no7no8_10_18,newdata=plotdat, se.fit=TRUE)
+with(predat_cnry_spwn_no7no8_10_18, lines(20:70,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#2166ac"))
+with(predat_cnry_spwn_no7no8_10_18, lines(20:70,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#2166ac"))
+
+# predat_cnry_spwn_no7no8_98_03 <- predict(fit.mat.glm.cnry_spwn_no7no8_98_03,newdata=plotdat, se.fit=TRUE)
+# with(predat_cnry_spwn_no7no8_98_03, lines(20:70,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#ff7f00"))
+# with(predat_cnry_spwn_no7no8_98_03, lines(20:70,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#ff7f00"))
+
+
+# L50 line #
+segments(18,0.5,72,0.5,lty=5)
+
+#Legend
+legend.a <- c(5, 10,     
+              15, 20)
+
+legend.cex <- 0.7*sqrt(legend.a)
+
+legend(20 ,1.1,legend=legend.a,pch=19,col="gray20",
+       cex = 1.5, pt.cex=legend.cex,ncol=1,bty='n', y.intersp = 1.3)
+text(22, 1.095, "N",cex = 1.7)
+
+
+legend(54,0.15, legend=c("1980-1984", "2010-2018"), col=c("#b2182b", "#2166ac"), lwd=c(3,3),
+       lty= c(1,1,1), cex=1.5, bty="n")
+
+# legend(54,0.15, legend=c("1980-1984", "1998-2003", "2010-2018"), col=c("#b2182b", "#ff7f00", "#2166ac"), lwd=c(3,3),
+#        lty= c(1,1,1), cex=1.5, bty="n")
+
+dev.off()
+
+### CREATE PLOT - save as fig3
+setEPS()
+postscript(here("figures", "historical_sensitivity_analysis", "Fig3.eps"), height = 8, width = 8)
 
 par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
 plot(0, type ='n', xlim=c(20,70),ylim=c(-0.01,1.1),xlab="Length (cm)",ylab="Proportion mature", cex.lab = 1.6, cex.axis = 1.3)
@@ -2239,7 +2347,7 @@ dev.off()
 
 
 
-### FIG 3: Spawning season, no 7s no 8s and no fish >= 70 cm that are immature
+### FIG 4: Spawning season, no 7s no 8s and no fish >= 70 cm that are immature
 ```{r get_parameters_sabl_no7no8_spwn_no70immature}
 # 1995-2001 # 
 bin_sabl_f_no7no8_spwn_no70immature_95_01 <- sabl_prop_mature_f_spwn_no70immature_no7no8_95_01$length_cm
@@ -2265,6 +2373,59 @@ B_glm.sabl_f_no7no8_spwn_no70immature_07_18 = df.fit.mat.glm.sabl_spwn_no70immat
 ### CREATE PLOT
 setEPS()
 postscript(here("figures", "historical_sensitivity_analysis", "sabl_no7no8_spwn_no70immature_histcomp.eps"), height = 8, width = 8)
+
+par(mfrow=c(1,1))
+par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
+plot(0, type ='n', xlim=c(30,85),ylim=c(-0.01,1.1),xlab="Length (cm)",ylab="Proportion mature", cex.lab = 1.6, cex.axis = 1.3)
+
+# points(x = bin_m.2, y = prop_m.2,cex=0.7*sqrt(n_m.2), pch=16, col = rgb(0,0,1,0.2))
+points(x = bin_sabl_f_no7no8_spwn_no70immature_95_01, y = prop_sabl_f_no7no8_spwn_no70immature_95_01,cex=0.7*sqrt(n_sabl_f_no7no8_spwn_no70immature_95_01), pch=16, col = "#f4a582")
+points(x = bin_sabl_f_no7no8_spwn_no70immature_07_18, y = prop_sabl_f_no7no8_spwn_no70immature_07_18,cex=0.7*sqrt(n_sabl_f_no7no8_spwn_no70immature_07_18), pch=16, col = "#92c5de")
+
+
+lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no7no8_spwn_no70immature_95_01+(B_glm.sabl_f_no7no8_spwn_no70immature_95_01*(30:83)))))), type = "l", col='#b2182b', pch = 19, lty =1,lwd = 3)####Time Period 2#####
+lines(30:83, 1/(1+(exp(-(A_glm.sabl_f_no7no8_spwn_no70immature_07_18+(B_glm.sabl_f_no7no8_spwn_no70immature_07_18*(30:83)))))), type = "l", col='#2166ac', pch = 19, lty =1,lwd = 3)####Time Period 2#####
+
+# GLM Confidence Bands #
+
+plotdat <- data.frame(length=(30:83))
+predat_sabl_f_no7no8_spwn_no70immature_95_01 <- predict(fit.mat.glm.sabl_spwn_no70immature_no7no8_95_01,newdata=plotdat, se.fit=TRUE)
+with(predat_sabl_f_no7no8_spwn_no70immature_95_01, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#b2182b"))
+with(predat_sabl_f_no7no8_spwn_no70immature_95_01, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#b2182b"))
+
+predat_sabl_f_no7no8_spwn_no70immature_07_18 <- predict(fit.mat.glm.sabl_spwn_no70immature_no7no8_07_18,newdata=plotdat, se.fit=TRUE)
+with(predat_sabl_f_no7no8_spwn_no70immature_07_18, lines(30:83,exp(fit+1.96*se.fit)/(1+exp(fit+1.96*se.fit)),lty=2,col="#2166ac"))
+with(predat_sabl_f_no7no8_spwn_no70immature_07_18, lines(30:83,exp(fit-1.96*se.fit)/(1+exp(fit-1.96*se.fit)),lty=2,col="#2166ac"))
+
+
+#Legend
+legend.a <- c(10, 20, 30)
+
+legend.cex <- 0.7*sqrt(legend.a)
+
+legend(30 ,1.1,legend=legend.a,pch=19,col="gray20",
+       cex = 1.5, pt.cex=legend.cex,ncol=1,bty='n', y.intersp = 1.3)
+text(32, 1.095, "N",cex = 1.7)
+
+# legend(30,1.01,legend="20",pch=19,col="gray20",cex = 1, pt.cex=0.7*sqrt(20),ncol=1,bty='n')
+# legend(30,0.95,legend="30",pch=19,col="gray20",cex = 1, pt.cex=0.7*sqrt(30),ncol=1,bty='n')
+
+legend(67.5,0.1, legend=c("1995-2001","2007-2018"), col=c("#b2182b", "#2166ac"), lwd=c(3,3),
+       lty= c(1,1,1), cex=1.5, bty="n")
+
+
+# # L50 line intercept #
+segments(28,0.5,87,0.5,lty=5)
+
+
+dev.off()
+
+
+
+
+### CREATE PLOT - save as fig4
+setEPS()
+postscript(here("figures", "historical_sensitivity_analysis", "Fig4.eps"), height = 8, width = 8)
 
 par(mfrow=c(1,1))
 par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
