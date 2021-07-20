@@ -139,7 +139,7 @@ ggsave(paste0(fig_dir, "/Fig1_cnry.eps"), cnry_code_plot, height = 7, width = 12
 ```{r sabl_maturity_code_usage_barplot}
 sabl_code_plot <- ggplot(sabl_f_mat_codes, aes(x = sample_year, y = n, fill = Stage))+
   geom_bar(stat = "identity")+
-  scale_fill_manual(values = fig4_color_scale) +
+  scale_fill_manual(values = fig1_color_scale) +
   xlab("Year")+
   ylab("Number of Samples")+
   theme(axis.text = element_text(size = 15),
@@ -1975,7 +1975,7 @@ dev.off()
 
 ### CREATE PLOT - save as fig3
 setEPS()
-postscript(here("figures", "historical_sensitivity_analysis", "Fig3.eps"), height = 8, width = 8)
+postscript(here("figures", "Fig3.eps"), height = 8, width = 8)
 
 par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
 plot(0, type ='n', xlim=c(20,70),ylim=c(-0.01,1.1),xlab="Length (cm)",ylab="Proportion mature", cex.lab = 1.6, cex.axis = 1.3)
@@ -2425,7 +2425,7 @@ dev.off()
 
 ### CREATE PLOT - save as fig4
 setEPS()
-postscript(here("figures", "historical_sensitivity_analysis", "Fig4.eps"), height = 8, width = 8)
+postscript(here("figures", "Fig4.eps"), height = 8, width = 8)
 
 par(mfrow=c(1,1))
 par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
@@ -2452,7 +2452,7 @@ with(predat_sabl_f_no7no8_spwn_no70immature_07_18, lines(30:83,exp(fit-1.96*se.f
 
 
 #Legend
-legend.a <- c(10, 20, 30)
+legend.a <- c(5, 10, 15, 20)
 
 legend.cex <- 0.7*sqrt(legend.a)
 
