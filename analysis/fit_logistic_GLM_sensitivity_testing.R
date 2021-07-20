@@ -10,6 +10,7 @@ library(tidyverse)
 library(here)
 library(faraway)
 library(janitor)
+library(readxl)
 
 ##--Sablefish-------------------------------------------------------------------
 
@@ -876,7 +877,7 @@ par(mfrow = c(1,3), xpd=TRUE,mar = c("bottom" = 1, "left" = 1, "top" = 1, "right
 
 ###### Plot CNRY ######
 par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
-plot(0, type ='n', xlim=c(25,60),ylim=c(-0.01,1.1),xlab="length_cm (cm)",ylab="Proportion mature", cex.lab = 2.4, cex.axis = 1.8)
+plot(0, type ='n', xlim=c(25,60),ylim=c(-0.01,1.1),xlab="Length (cm)",ylab="Proportion mature", cex.lab = 2.4, cex.axis = 1.8)
 
 points(x = bin_macro.CNRY, y = prop_macro.CNRY,cex=sqrt(n_macro.CNRY), pch=16, col = "#984ea3") # macro
 points(x = bin_bio.CNRY, y = prop_bio.CNRY,cex=sqrt(n_bio.CNRY), pch=16, col = "#377eb8") # bio
@@ -928,7 +929,7 @@ text(59, 1.08, "(a)",cex = 4)
 
 ###### Plot SABL ######
 par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
-plot(0, type ='n', xlim=c(35,75),ylim=c(-0.01,1.1),xlab="length_cm (cm)",ylab="Proportion mature", cex.lab = 2.4, cex.axis = 1.8)
+plot(0, type ='n', xlim=c(35,75),ylim=c(-0.01,1.1),xlab="Length (cm)",ylab="Proportion mature", cex.lab = 2.4, cex.axis = 1.8)
 
 points(x = bin_macro.SABL, y = prop_macro.SABL,cex=sqrt(n_macro.SABL), pch=16, col = "#984ea3") # macro
 points(x = bin_bio.SABL, y = prop_bio.SABL,cex=sqrt(n_bio.SABL), pch=16, col = "#377eb8") # bio
@@ -941,7 +942,7 @@ lines(35:75, 1/(1+(exp(-(A_glm.fun.SABL+(B_glm.fun.SABL*(35:75)))))), type = "l"
 
 # ############# Check manually - macro only
 # par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
-# plot(0, type ='n', xlim=c(35,75),ylim=c(-0.01,1.1),xlab="length_cm (cm)",ylab="Proportion mature", cex.lab = 2.4, cex.axis = 1.8)
+# plot(0, type ='n', xlim=c(35,75),ylim=c(-0.01,1.1),xlab="Length (cm)",ylab="Proportion mature", cex.lab = 2.4, cex.axis = 1.8)
 # points(x = bin_macro.SABL, y = prop_macro.SABL,cex=sqrt(n_macro.SABL), pch=16, col = "#984ea3") # macro
 # # Plot explicitly according to logistic formula
 # lines(35:75, 1/(1+(exp(-(A_glm.macro.SABL+(B_glm.macro.SABL*(35:75)))))), type = "l", col="#984ea3", pch = 19, lty =1,lwd = 3)# Macro
@@ -1014,7 +1015,7 @@ text(73.5, 1.08, "(b)",cex = 4)
 
 ###### Plot ARTH ######
 par(xpd=TRUE,mar = c("bottom" = 5, "left" = 5, "top" = 1, "right" = 1))
-plot(0, type ='n', xlim=c(20,75),ylim=c(-0.01,1.1),xlab="length_cm (cm)",ylab="Proportion mature", cex.lab = 2.4, cex.axis = 1.8)
+plot(0, type ='n', xlim=c(20,75),ylim=c(-0.01,1.1),xlab="Length (cm)",ylab="Proportion mature", cex.lab = 2.4, cex.axis = 1.8)
 
 points(x = bin_macro.ARTH, y = prop_macro.ARTH,cex=sqrt(n_macro.ARTH), pch=16, col = "#984ea3") # macro
 points(x = bin_bio.ARTH, y = prop_bio.ARTH,cex=sqrt(n_bio.ARTH), pch=16, col = "#377eb8") # bio
