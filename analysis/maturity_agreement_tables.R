@@ -188,7 +188,7 @@ sabl_histo_v_macro_table %>%
   mutate(., binary_disagree = round(binary_disagree, 1)) -> sabl_histo_v_macro_table
 
 # Export
-write.csv(sabl_histo_v_macro_table, here("tables", "sablefish_table.csv"), row.names = FALSE)
+# write.csv(sabl_histo_v_macro_table, here("tables", "sablefish_table.csv"), row.names = FALSE)
 
 
 
@@ -386,7 +386,7 @@ cnry_histo_v_macro_table %>%
                       N = sum(cnry_histo_v_macro_table$N, na.rm = TRUE))) -> cnry_histo_v_macro_table
 
 # Export
-write.csv(cnry_histo_v_macro_table, here("tables", "canary_table.csv"), row.names = FALSE)
+# write.csv(cnry_histo_v_macro_table, here("tables", "canary_table.csv"), row.names = FALSE)
 
 
 #####----Arrowtooth Flounder----####
@@ -597,12 +597,58 @@ arth_histo_v_macro_table %>%
                           N = sum(arth_histo_v_macro_table$N, na.rm = TRUE))) -> arth_histo_v_macro_table
 
 # Export
-write.csv(arth_histo_v_macro_table, here("tables", "arrowtooth_table.csv"), row.names = FALSE)
+# write.csv(arth_histo_v_macro_table, here("tables", "arrowtooth_table.csv"), row.names = FALSE)
 
 # Check accuracy for each species
 ARTH_accuracy_by_biologist
 CNRY_accuracy_by_biologist
 SABL_accuracy_by_biologist
+
+
+#### Run Fisher's Exact Test ####
+
+# in order to do this, we need to group samplers by amount of experience. (because sample sizes are so low)
+# Let's do <= 2, and > 2.
+
+# Group samplers, convert to matrix, run test
+
+# ARTH
+ARTH_accuracy_by_biologist %>% 
+  mutate(exp_cat = ifelse(arth_exp == "10+ years", ">2 years", "<=2 years")) %>% 
+  group_by(exp_cat) %>% 
+  summarise(n_correct = sum(n_correct), n = sum(n)) %>% 
+  mutate(n_incorrect = n - n_correct) %>% 
+  dplyr::select(-c(exp_cat, n)) %>% 
+  t() %>% 
+  as.matrix() -> ARTH_contingency_matrix
+
+fisher.test(ARTH_contingency_matrix)
+
+# CNRY
+CNRY_accuracy_by_biologist %>% 
+  mutate(exp_cat = ifelse(cnry_exp == "10+ years", ">2 years", "<=2 years")) %>% 
+  group_by(exp_cat) %>% 
+  summarise(n_correct = sum(n_correct), n = sum(n)) %>% 
+  mutate(n_incorrect = n - n_correct) %>% 
+  dplyr::select(-c(exp_cat, n)) %>% 
+  t() %>% 
+  as.matrix() -> CNRY_contingency_matrix
+
+fisher.test(CNRY_contingency_matrix)
+
+# SABL
+SABL_accuracy_by_biologist %>% 
+  mutate(exp_cat = ifelse(sabl_exp == "10+ years", ">2 years", "<=2 years")) %>% 
+  group_by(exp_cat) %>% 
+  summarise(n_correct = sum(n_correct), n = sum(n)) %>% 
+  mutate(n_incorrect = n - n_correct) %>% 
+  dplyr::select(-c(exp_cat, n)) %>% 
+  t() %>% 
+  as.matrix() -> sabl_contingency_matrix
+
+fisher.test(sabl_contingency_matrix)
+
+
 
 # Export tables - need to merge into one Excel file to share with Sheryl
 write.csv(ARTH_for_comp, here("tables", "for_sheryl", "arrowtooth_accuracy.csv"), row.names = FALSE)
